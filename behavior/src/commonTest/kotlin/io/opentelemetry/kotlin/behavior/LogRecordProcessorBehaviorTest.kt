@@ -44,18 +44,7 @@ internal class LogRecordProcessorBehaviorTest {
     fun adoptsHttpFromWhicheverLayerSuppliedIt() {
         val http = OtlpHttpExporterBehavior(
             endpoint = "https://example.com",
-            tls = HttpTls(
-                caFile = "caFile.pem",
-                keyFile = "keyFile.pem",
-                certFile = "certFile.pem",
-            ),
-            headers = mapOf("Content-Type" to "application/json"),
-            headersList = listOf("Content-Type", "application/json"),
-            compression = "gzip",
-            maxRequestSize = 500,
-            maxResponseSize = 500,
             timeout = 10_000,
-            encoding = HttpEncoding.JSON
         )
 
         assertEquals(
