@@ -9,6 +9,8 @@ import io.opentelemetry.kotlin.ExperimentalApi
  * https://opentelemetry.io/docs/specs/otel/protocol/exporter/
  */
 data class OtlpHttpExporterBehavior(
+    // TODO: Add all fields supported by the spec.
+    //  Blocked by #974. (OTLP exporter configuration surface)
     /**
      * Target to which the exporter is going to send spans, metrics, or logs.
      */
