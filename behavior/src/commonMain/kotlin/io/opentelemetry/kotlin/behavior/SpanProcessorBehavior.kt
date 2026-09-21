@@ -16,7 +16,7 @@ data class SpanProcessorBehavior(
     /**
      * HTTP log exporter.
      */
-    val http: HttpExporterBehavior? = null,
+    val http: OtlpHttpExporterBehavior? = null,
 ) : Behavior<SpanProcessorBehavior> {
 
     override fun mergeWith(higher: SpanProcessorBehavior): SpanProcessorBehavior = copy(

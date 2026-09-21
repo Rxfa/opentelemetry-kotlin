@@ -16,7 +16,7 @@ data class LogRecordProcessorBehavior(
     /**
      * HTTP log exporter.
      */
-    val http: HttpExporterBehavior? = null,
+    val http: OtlpHttpExporterBehavior? = null,
 ) : Behavior<LogRecordProcessorBehavior> {
 
     override fun mergeWith(higher: LogRecordProcessorBehavior): LogRecordProcessorBehavior = copy(

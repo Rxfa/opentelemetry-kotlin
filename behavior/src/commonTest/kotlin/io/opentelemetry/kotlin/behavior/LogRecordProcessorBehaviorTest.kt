@@ -42,7 +42,7 @@ internal class LogRecordProcessorBehaviorTest {
 
     @Test
     fun adoptsHttpFromWhicheverLayerSuppliedIt() {
-        val http = HttpExporterBehavior(
+        val http = OtlpHttpExporterBehavior(
             endpoint = "https://example.com",
             tls = HttpTls(
                 caFile = "caFile.pem",

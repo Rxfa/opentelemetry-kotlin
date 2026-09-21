@@ -8,7 +8,7 @@ import io.opentelemetry.kotlin.ExperimentalApi
  *
  * https://opentelemetry.io/docs/specs/otel/protocol/exporter/
  */
-data class HttpExporterBehavior(
+data class OtlpHttpExporterBehavior(
     /**
      * Target to which the exporter is going to send spans, metrics, or logs.
      */
@@ -44,8 +44,8 @@ data class HttpExporterBehavior(
      * Encoding used for messages.
      */
     val encoding: HttpEncoding? = null,
-) : Behavior<HttpExporterBehavior> {
-    override fun mergeWith(higher: HttpExporterBehavior): HttpExporterBehavior {
+) : Behavior<OtlpHttpExporterBehavior> {
+    override fun mergeWith(higher: OtlpHttpExporterBehavior): OtlpHttpExporterBehavior {
         return copy(
             endpoint = higher.endpoint ?: endpoint,
             tls = higher.tls ?: tls,
