@@ -31,7 +31,8 @@ internal class TracesExporterEnvVarsTest {
 
     @Test
     fun `should leave known non-implemented exporters unset`() {
-        val exporters = listOf(TracesExporterEnvVars.LOGGING, TracesExporterEnvVars.NONE, TracesExporterEnvVars.OTLP_STDOUT, "")
+        val exporters =
+            listOf(TracesExporterEnvVars.LOGGING, TracesExporterEnvVars.NONE, TracesExporterEnvVars.OTLP_STDOUT, "")
         exporters.forEach { name ->
             assertNull(
                 toBehavior(env(name)),

@@ -31,11 +31,13 @@ internal class LogsExporterEnvVarsTest {
 
     @Test
     fun `should leave known non-implemented exporters unset`() {
-        val exporters = listOf(LogsExporterEnvVars.LOGGING, LogsExporterEnvVars.NONE, LogsExporterEnvVars.OTLP_STDOUT, "")
+        val exporters =
+            listOf(LogsExporterEnvVars.LOGGING, LogsExporterEnvVars.NONE, LogsExporterEnvVars.OTLP_STDOUT, "")
         exporters.forEach {
-            name -> assertNull(
-            toBehavior(env(name)),
-            "<$name> should not configure a processor"
+                name ->
+            assertNull(
+                toBehavior(env(name)),
+                "<$name> should not configure a processor"
             )
         }
     }
