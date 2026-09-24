@@ -71,11 +71,13 @@ internal class LogsExporterEnvVarsTest {
 
     private fun env(exporter: String): (String) -> String? {
         val values = buildMap {
-            put(LogsExporterEnvVars.CONSOLE, exporter)
+            put(LogsExporterEnvVars.EXPORTER, exporter)
         }
         return values::get
     }
 
     private fun toBehavior(getEnvVar: (String) -> String?) =
-        LogsExporterEnvVars(reportingEnvVarReader(getEnvVar)).toBehavior()
+        LogsExporterEnvVars(
+            reportingEnvVarReader(getEnvVar),
+        ).toBehavior()
 }
