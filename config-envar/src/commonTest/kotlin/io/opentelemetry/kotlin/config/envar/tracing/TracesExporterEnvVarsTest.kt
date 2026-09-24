@@ -3,6 +3,7 @@ package io.opentelemetry.kotlin.config.envar.tracing
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpExporterBehavior
 import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
+import io.opentelemetry.kotlin.config.envar.OpenTelemetryEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import kotlin.test.Test
@@ -66,6 +67,33 @@ internal class TracesExporterEnvVarsTest {
         val warnings = mutableListOf<EnvVarReadWarning>()
         TracesExporterEnvVars(reportingEnvVarReader(env(TracesExporterEnvVars.OTLP), warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)
+    }
+
+    @Test
+    fun `Signal-specific configs override base configs`() {
+        val configs = mutableMapOf(
+            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.OTLP,
+            OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
+            OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
+        )
+        assertEquals(
+            SpanProcessorBehavior(http = OtlpHttpExporterBehavior(
+                endpoint = "http://localhost:4317", timeout = 1
+            )),
+            toBehavior(configs::get),
+        )
+        configs.putAll(
+            mapOf(
+                TracesExporterEnvVars.OTLP_TRACES_ENDPOINT to "http://localhost:4317/traces",
+                TracesExporterEnvVars.OTLP_TRACES_TIMEOUT to "2"
+            )
+        )
+        assertEquals(
+            SpanProcessorBehavior(http = OtlpHttpExporterBehavior(
+                endpoint = "http://localhost:4317/traces", timeout = 2
+            )),
+            toBehavior(configs::get),
+        )
     }
 
     private fun env(exporter: String): (String) -> String? {

@@ -3,6 +3,7 @@ package io.opentelemetry.kotlin.config.envar.logging
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpExporterBehavior
+import io.opentelemetry.kotlin.config.envar.OpenTelemetryEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import kotlin.test.Test
@@ -67,6 +68,33 @@ internal class LogsExporterEnvVarsTest {
         val warnings = mutableListOf<EnvVarReadWarning>()
         LogsExporterEnvVars(reportingEnvVarReader(env(LogsExporterEnvVars.LOGGING), warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)
+    }
+
+    @Test
+    fun `Signal-specific configs override base configs`() {
+        val configs = mutableMapOf(
+            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.OTLP,
+            OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
+            OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
+        )
+        assertEquals(
+            LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior(
+                endpoint = "http://localhost:4317", timeout = 1
+            )),
+            toBehavior(configs::get),
+        )
+        configs.putAll(
+            mapOf(
+                LogsExporterEnvVars.OTLP_LOGS_ENDPOINT to "http://localhost:4317/logs",
+                LogsExporterEnvVars.OTLP_LOGS_TIMEOUT to "2"
+            )
+        )
+        assertEquals(
+            LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior(
+                endpoint = "http://localhost:4317/logs", timeout = 2
+            )),
+            toBehavior(configs::get),
+        )
     }
 
     private fun env(exporter: String): (String) -> String? {
