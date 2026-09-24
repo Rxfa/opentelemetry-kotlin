@@ -25,12 +25,16 @@ class TracesExporterEnvVars(
         //  fully implemented.
         when (name.lowercase()) {
             CONSOLE -> Value(SpanProcessorBehavior(console = ConsoleExporterBehavior()))
-            OTLP -> Value(SpanProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = reader.readString(OTLP_TRACES_ENDPOINT) ?:
-                    reader.readString(OpenTelemetryEnvVars.OTLP_ENDPOINT),
-                timeout = reader.readNonNegativeInt(OTLP_TRACES_TIMEOUT) ?:
-                    reader.readNonNegativeInt(OpenTelemetryEnvVars.OTLP_TIMEOUT)
-            )))
+            OTLP -> Value(
+                SpanProcessorBehavior(
+                    http = OtlpHttpExporterBehavior(
+                        endpoint = reader.readString(OTLP_TRACES_ENDPOINT)
+                            ?: reader.readString(OpenTelemetryEnvVars.OTLP_ENDPOINT),
+                        timeout = reader.readNonNegativeInt(OTLP_TRACES_TIMEOUT)
+                            ?: reader.readNonNegativeInt(OpenTelemetryEnvVars.OTLP_TIMEOUT)
+                    )
+                )
+            )
             LOGGING, NONE, OTLP_STDOUT -> Value(null)
             else -> Invalid(EnvVarReadWarning(EXPORTER, "Unknown value '$name'; ignoring"))
         }

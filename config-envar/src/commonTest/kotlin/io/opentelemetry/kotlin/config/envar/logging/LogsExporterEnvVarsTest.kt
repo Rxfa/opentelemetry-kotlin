@@ -78,9 +78,12 @@ internal class LogsExporterEnvVarsTest {
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
         )
         assertEquals(
-            LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = "http://localhost:4317", timeout = 1
-            )),
+            LogRecordProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 1
+                )
+            ),
             toBehavior(configs::get),
         )
         configs.putAll(
@@ -90,9 +93,12 @@ internal class LogsExporterEnvVarsTest {
             )
         )
         assertEquals(
-            LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = "http://localhost:4317/logs", timeout = 2
-            )),
+            LogRecordProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317/logs",
+                    timeout = 2
+                )
+            ),
             toBehavior(configs::get),
         )
     }

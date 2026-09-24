@@ -25,12 +25,16 @@ class LogsExporterEnvVars(
         //  fully implemented.
         when (name.lowercase()) {
             CONSOLE -> Value(LogRecordProcessorBehavior(console = ConsoleExporterBehavior()))
-            OTLP -> Value(LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = reader.readString(OTLP_LOGS_ENDPOINT) ?:
-                    reader.readString(OpenTelemetryEnvVars.OTLP_ENDPOINT),
-                timeout = reader.readNonNegativeInt(OTLP_LOGS_TIMEOUT) ?:
-                    reader.readNonNegativeInt(OpenTelemetryEnvVars.OTLP_TIMEOUT)
-            )))
+            OTLP -> Value(
+                LogRecordProcessorBehavior(
+                    http = OtlpHttpExporterBehavior(
+                        endpoint = reader.readString(OTLP_LOGS_ENDPOINT)
+                            ?: reader.readString(OpenTelemetryEnvVars.OTLP_ENDPOINT),
+                        timeout = reader.readNonNegativeInt(OTLP_LOGS_TIMEOUT)
+                            ?: reader.readNonNegativeInt(OpenTelemetryEnvVars.OTLP_TIMEOUT)
+                    )
+                )
+            )
             LOGGING, NONE, OTLP_STDOUT -> Value(null)
             else -> Invalid(EnvVarReadWarning(EXPORTER, "Unknown value '$name'; ignoring"))
         }

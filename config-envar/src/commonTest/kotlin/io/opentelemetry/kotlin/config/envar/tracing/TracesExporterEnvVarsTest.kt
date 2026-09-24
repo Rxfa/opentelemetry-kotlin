@@ -77,9 +77,12 @@ internal class TracesExporterEnvVarsTest {
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
         )
         assertEquals(
-            SpanProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = "http://localhost:4317", timeout = 1
-            )),
+            SpanProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 1
+                )
+            ),
             toBehavior(configs::get),
         )
         configs.putAll(
@@ -89,9 +92,12 @@ internal class TracesExporterEnvVarsTest {
             )
         )
         assertEquals(
-            SpanProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = "http://localhost:4317/traces", timeout = 2
-            )),
+            SpanProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317/traces",
+                    timeout = 2
+                )
+            ),
             toBehavior(configs::get),
         )
     }
