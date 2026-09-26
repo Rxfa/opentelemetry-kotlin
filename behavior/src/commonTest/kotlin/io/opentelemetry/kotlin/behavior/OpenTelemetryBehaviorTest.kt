@@ -10,6 +10,10 @@ internal class OpenTelemetryBehaviorTest {
     fun everyFieldStartsUnset() {
         val behavior = OpenTelemetryBehavior()
 
+        assertNull(behavior.fileFormat)
+        assertNull(behavior.disabled)
+        assertNull(behavior.logLevel)
+        assertNull(behavior.distribution)
         assertNull(behavior.resource)
         assertNull(behavior.attributeLimits)
         assertNull(behavior.tracerProvider)
