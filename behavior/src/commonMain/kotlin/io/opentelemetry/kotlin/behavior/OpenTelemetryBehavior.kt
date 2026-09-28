@@ -28,6 +28,12 @@ data class OpenTelemetryBehavior(
      */
     val distribution: Distribution? = null,
     /**
+     * Entity information associated with the resource.
+     *
+     * Note: Only supported by the environment variable [spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration), has no node in the declarative schema
+     */
+    val entities: String? = null,
+    /**
      * The service producing telemetry.
      */
     val resource: ResourceBehavior? = null,
@@ -46,7 +52,7 @@ data class OpenTelemetryBehavior(
 ) : Behavior<OpenTelemetryBehavior> {
 
     override fun mergeWith(higher: OpenTelemetryBehavior): OpenTelemetryBehavior = copy(
-        fileFormat = higher.fileFormat,
+        fileFormat = higher.fileFormat ?: fileFormat,
         disabled = higher.disabled ?: disabled,
         logLevel = higher.logLevel ?: logLevel,
         distribution = mergeMap(distribution, higher.distribution),
@@ -63,7 +69,7 @@ data class OpenTelemetryBehavior(
  */
 @ExperimentalApi
 fun mergeBehaviors(layers: List<OpenTelemetryBehavior>): OpenTelemetryBehavior =
-    layers.fold(OpenTelemetryBehavior("")) { merged, layer -> merged.mergeWith(layer) }
+    layers.fold(OpenTelemetryBehavior()) { merged, layer -> merged.mergeWith(layer) }
 
 typealias Distribution = Map<String, Any?>
 
