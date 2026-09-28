@@ -30,7 +30,7 @@ data class OpenTelemetryBehavior(
     /**
      * Entity information associated with the resource.
      *
-     * Note: Only supported by the environment variable [spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration), has no node in the declarative schema
+     * Note: Only supported by the environment variable spec, has no node in the declarative schema
      */
     val entities: String? = null,
     /**
