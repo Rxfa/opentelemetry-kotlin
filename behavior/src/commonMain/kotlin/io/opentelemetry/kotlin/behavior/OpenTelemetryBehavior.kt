@@ -56,6 +56,7 @@ data class OpenTelemetryBehavior(
         disabled = higher.disabled ?: disabled,
         logLevel = higher.logLevel ?: logLevel,
         distribution = mergeMap(distribution, higher.distribution),
+        entities = higher.entities ?: entities,
         resource = mergeNode(resource, higher.resource),
         attributeLimits = mergeNode(attributeLimits, higher.attributeLimits),
         tracerProvider = mergeNode(tracerProvider, higher.tracerProvider),
