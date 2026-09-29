@@ -19,11 +19,16 @@ data class OtlpHttpExporterBehavior(
      * Maximum time (in milliseconds) to wait for each export.
      */
     val timeout: Long? = null,
+    /**
+     * Configure headers.
+     */
+    val headers: Map<String, String?>? = null,
 ) : Behavior<OtlpHttpExporterBehavior> {
     override fun mergeWith(higher: OtlpHttpExporterBehavior): OtlpHttpExporterBehavior {
         return copy(
             endpoint = higher.endpoint ?: endpoint,
             timeout = higher.timeout ?: timeout,
+            headers = mergeMap(headers, higher.headers),
         )
     }
 }
