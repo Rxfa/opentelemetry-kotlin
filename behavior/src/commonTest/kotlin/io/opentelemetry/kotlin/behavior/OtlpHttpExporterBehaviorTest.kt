@@ -37,4 +37,30 @@ internal class OtlpHttpExporterBehaviorTest {
         )
         assertEquals(higher, lower.mergeWith(higher))
     }
+
+    @Test
+    fun testBuildHeaderMap() {
+        assertEquals(null, OtlpHttpExporterBehavior.buildHeaderMap(null))
+        assertEquals(emptyMap(), OtlpHttpExporterBehavior.buildHeaderMap("="))
+        assertEquals(
+            mapOf("key" to "value"),
+            OtlpHttpExporterBehavior.buildHeaderMap("\tkey =    value\t\t")
+        )
+        assertEquals(
+            mapOf("key" to "value", "key3" to "value3"),
+            OtlpHttpExporterBehavior.buildHeaderMap("key=value,key2=,key3=value3")
+        )
+        assertEquals(
+            mapOf("key" to "value", "key3" to "value3"),
+            OtlpHttpExporterBehavior.buildHeaderMap("key=value,=value2,key3=value3")
+        )
+        assertEquals(
+            mapOf("key" to "value", "key2" to "value2=value2"),
+            OtlpHttpExporterBehavior.buildHeaderMap("key=value,key2=value2=value2")
+        )
+        assertEquals(
+            mapOf("key" to "value", "key2" to "value2"),
+            OtlpHttpExporterBehavior.buildHeaderMap("key=value,key2=value2")
+        )
+    }
 }

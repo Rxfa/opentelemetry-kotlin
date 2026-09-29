@@ -31,4 +31,20 @@ data class OtlpHttpExporterBehavior(
             headers = mergeMap(headers, higher.headers),
         )
     }
+
+    companion object {
+        fun buildHeaderMap(headerString: String?): Map<String, String>? {
+            headerString ?: return null
+            return buildMap {
+                headerString.split(",").forEach { header ->
+                    // Trailing and leading whitespaces are allowed but not considered part of key/value.
+                    // See https://www.w3.org/TR/baggage/#key and https://www.w3.org/TR/baggage/#value
+                    val (key, value) = header.split("=", limit = 2).map(String::trim)
+                    if (key.isNotEmpty() && value.isNotEmpty()) {
+                        put(key, value)
+                    }
+                }
+            }
+        }
+    }
 }
