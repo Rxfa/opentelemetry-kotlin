@@ -36,11 +36,13 @@ internal class LogsExporterEnvVarsTest {
             OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2",
         )
         assertEquals(
-            LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = "http://localhost:4317",
-                timeout = 1,
-                headers = mapOf("key1" to "value1", "key2" to "value2")
-            )),
+            LogRecordProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
+                )
+            ),
             toBehavior(configs::get),
         )
     }
@@ -50,7 +52,8 @@ internal class LogsExporterEnvVarsTest {
         val exporters =
             listOf(LogsExporterEnvVars.LOGGING, LogsExporterEnvVars.NONE, LogsExporterEnvVars.OTLP_STDOUT, "")
         exporters.forEach {
-            name -> assertNull(
+                name ->
+            assertNull(
                 toBehavior(mapOf(LogsExporterEnvVars.EXPORTER to name)::get),
                 "<$name> should not configure a processor"
             )

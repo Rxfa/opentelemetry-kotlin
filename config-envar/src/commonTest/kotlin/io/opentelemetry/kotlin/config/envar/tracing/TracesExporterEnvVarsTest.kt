@@ -35,11 +35,13 @@ internal class TracesExporterEnvVarsTest {
             OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2",
         )
         assertEquals(
-            SpanProcessorBehavior(http = OtlpHttpExporterBehavior(
-                endpoint = "http://localhost:4317",
-                timeout = 1,
-                headers = mapOf("key1" to "value1", "key2" to "value2")
-            )),
+            SpanProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
+                )
+            ),
             toBehavior(configs::get)
         )
     }
