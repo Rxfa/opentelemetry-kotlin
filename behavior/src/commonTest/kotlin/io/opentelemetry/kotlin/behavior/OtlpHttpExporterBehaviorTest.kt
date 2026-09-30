@@ -33,7 +33,7 @@ internal class OtlpHttpExporterBehaviorTest {
         val higher = OtlpHttpExporterBehavior(
             endpoint = "https://example.com/2",
             timeout = 20_000,
-            headers = mapOf("c" to "d"),
+            headers = mapOf("a" to "c", "c" to "d"),
         )
         assertEquals(higher, lower.mergeWith(higher))
     }
