@@ -66,6 +66,8 @@ internal class OpenTelemetryEnvVarsTest {
             SpanLimitsEnvVars.LINK_ATTRIBUTE_COUNT_LIMIT to "8",
             LogLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "9",
             LogLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "10",
+            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.CONSOLE,
+            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.CONSOLE,
         )
 
         val expected = OpenTelemetryBehavior(
@@ -82,12 +84,18 @@ internal class OpenTelemetryEnvVarsTest {
                     attributeCountPerEventLimit = 7,
                     attributeCountPerLinkLimit = 8,
                 ),
+                processor = SpanProcessorBehavior(
+                    console = ConsoleExporterBehavior(),
+                ),
             ),
             loggerProvider = LoggerProviderBehavior(
                 logLimits = LogLimitsBehavior(
                     attributeCountLimit = 9,
                     attributeValueLengthLimit = 10,
                 ),
+                processor = LogRecordProcessorBehavior(
+                    console = ConsoleExporterBehavior(),
+                )
             ),
         )
         assertEquals(expected, toBehavior(env::get))
