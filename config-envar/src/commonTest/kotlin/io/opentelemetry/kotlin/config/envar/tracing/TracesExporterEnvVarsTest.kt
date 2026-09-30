@@ -21,13 +21,29 @@ internal class TracesExporterEnvVarsTest {
 
     @Test
     fun `should map implemented exporters`() {
-        assertEquals(
-            SpanProcessorBehavior(console = ConsoleExporterBehavior()),
-            toBehavior(env(Exporter.CONSOLE.value)),
+        var configs = mapOf(
+            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.CONSOLE.value
         )
         assertEquals(
-            SpanProcessorBehavior(http = OtlpHttpExporterBehavior()),
-            toBehavior(env(Exporter.OTLP.value)),
+            SpanProcessorBehavior(console = ConsoleExporterBehavior()),
+            toBehavior(configs::get),
+        )
+
+        configs = mapOf(
+            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
+            OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
+            OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
+            OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2",
+        )
+        assertEquals(
+            SpanProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
+                )
+            ),
+            toBehavior(configs::get)
         )
     }
 
@@ -36,7 +52,7 @@ internal class TracesExporterEnvVarsTest {
         val exporters = listOf(Exporter.LOGGING, Exporter.NONE, Exporter.OTLP_STDOUT)
         exporters.forEach { exporter ->
             assertNull(
-                toBehavior(env(exporter.value)),
+                toBehavior(mapOf(TracesExporterEnvVars.TRACES_EXPORTER to exporter.value)::get),
                 "<$exporter> should not configure a processor"
             )
         }
@@ -44,13 +60,15 @@ internal class TracesExporterEnvVarsTest {
 
     @Test
     fun `should leave unknown exporter unset`() {
-        assertNull(toBehavior(env(unknownExporter)))
+        val configs = mapOf(TracesExporterEnvVars.TRACES_EXPORTER to unknownExporter)
+        assertNull(toBehavior(configs::get))
     }
 
     @Test
     fun `should warn on unknown exporter`() {
+        val configs = mapOf(TracesExporterEnvVars.TRACES_EXPORTER to unknownExporter)
         val warnings = mutableListOf<EnvVarReadWarning>()
-        TracesExporterEnvVars(reportingEnvVarReader(env(unknownExporter), warnings::add)).toBehavior()
+        TracesExporterEnvVars(reportingEnvVarReader(configs::get, warnings::add)).toBehavior()
         assertEquals(1, warnings.size)
         assertEquals(TracesExporterEnvVars.TRACES_EXPORTER, warnings.single().name)
     }
@@ -64,8 +82,9 @@ internal class TracesExporterEnvVarsTest {
 
     @Test
     fun `should not warn on known non-implemented exporters`() {
+        val configs = mapOf(TracesExporterEnvVars.TRACES_EXPORTER to TracesExporterEnvVars.OTLP)
         val warnings = mutableListOf<EnvVarReadWarning>()
-        TracesExporterEnvVars(reportingEnvVarReader(env(Exporter.OTLP.value), warnings::add)).toBehavior()
+        TracesExporterEnvVars(reportingEnvVarReader(configs::get, warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)
     }
 
@@ -75,12 +94,14 @@ internal class TracesExporterEnvVarsTest {
             TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
             OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
+            OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2",
         )
         assertEquals(
             SpanProcessorBehavior(
                 http = OtlpHttpExporterBehavior(
                     endpoint = "http://localhost:4317",
-                    timeout = 1
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
                 )
             ),
             toBehavior(configs::get),
@@ -88,25 +109,20 @@ internal class TracesExporterEnvVarsTest {
         configs.putAll(
             mapOf(
                 TracesExporterEnvVars.OTLP_TRACES_ENDPOINT to "http://localhost:4317/traces",
-                TracesExporterEnvVars.OTLP_TRACES_TIMEOUT to "2"
+                TracesExporterEnvVars.OTLP_TRACES_TIMEOUT to "2",
+                TracesExporterEnvVars.OTLP_TRACES_HEADERS to "key3=value3,key4=value4",
             )
         )
         assertEquals(
             SpanProcessorBehavior(
                 http = OtlpHttpExporterBehavior(
                     endpoint = "http://localhost:4317/traces",
-                    timeout = 2
+                    timeout = 2,
+                    headers = mapOf("key3" to "value3", "key4" to "value4")
                 )
             ),
             toBehavior(configs::get),
         )
-    }
-
-    private fun env(exporter: String): (String) -> String? {
-        val values = buildMap {
-            put(TracesExporterEnvVars.TRACES_EXPORTER, exporter)
-        }
-        return values::get
     }
 
     private fun toBehavior(getEnvVar: (String) -> String?) =

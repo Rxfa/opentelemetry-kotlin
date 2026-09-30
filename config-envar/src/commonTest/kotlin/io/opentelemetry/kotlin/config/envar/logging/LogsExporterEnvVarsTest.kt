@@ -7,6 +7,7 @@ import io.opentelemetry.kotlin.config.envar.Exporter
 import io.opentelemetry.kotlin.config.envar.OpenTelemetryEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
+import io.opentelemetry.kotlin.config.envar.tracing.TracesExporterEnvVars
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -21,13 +22,29 @@ internal class LogsExporterEnvVarsTest {
 
     @Test
     fun `should map implemented exporters`() {
-        assertEquals(
-            LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
-            toBehavior(env(Exporter.CONSOLE.value)),
+        var configs = mapOf(
+            LogsExporterEnvVars.LOGS_EXPORTER to LogsExporterEnvVars.CONSOLE,
         )
         assertEquals(
-            LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior()),
-            toBehavior(env(Exporter.OTLP.value)),
+            LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
+            toBehavior(configs::get),
+        )
+
+        configs = mapOf(
+            LogsExporterEnvVars.LOGS_EXPORTER to TracesExporterEnvVars.OTLP,
+            OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
+            OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
+            OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2",
+        )
+        assertEquals(
+            LogRecordProcessorBehavior(
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
+                )
+            ),
+            toBehavior(configs::get),
         )
     }
 
@@ -37,7 +54,7 @@ internal class LogsExporterEnvVarsTest {
             listOf(Exporter.LOGGING, Exporter.NONE, Exporter.OTLP_STDOUT)
         exporters.forEach { exporter ->
             assertNull(
-                toBehavior(env(exporter.value)),
+                toBehavior(mapOf(LogsExporterEnvVars.LOGS_EXPORTER to exporter.value)::get),
                 "<$exporter> should not configure a processor"
             )
         }
@@ -45,13 +62,15 @@ internal class LogsExporterEnvVarsTest {
 
     @Test
     fun `should leave unknown exporter unset`() {
-        assertNull(toBehavior(env(unknownExporter)))
+        val configs = mapOf(LogsExporterEnvVars.LOGS_EXPORTER to unknownExporter)
+        assertNull(toBehavior(configs::get))
     }
 
     @Test
     fun `should warn on unknown exporter`() {
+        val configs = mapOf(LogsExporterEnvVars.LOGS_EXPORTER to unknownExporter)
         val warnings = mutableListOf<EnvVarReadWarning>()
-        LogsExporterEnvVars(reportingEnvVarReader(env(unknownExporter), warnings::add)).toBehavior()
+        LogsExporterEnvVars(reportingEnvVarReader(configs::get, warnings::add)).toBehavior()
         assertEquals(1, warnings.size)
         assertEquals(LogsExporterEnvVars.LOGS_EXPORTER, warnings.single().name)
     }
@@ -65,8 +84,9 @@ internal class LogsExporterEnvVarsTest {
 
     @Test
     fun `should not warn on known non-implemented exporters`() {
+        val configs = mapOf(LogsExporterEnvVars.LOGS_EXPORTER to LogsExporterEnvVars.LOGGING)
         val warnings = mutableListOf<EnvVarReadWarning>()
-        LogsExporterEnvVars(reportingEnvVarReader(env(Exporter.LOGGING.value), warnings::add)).toBehavior()
+        LogsExporterEnvVars(reportingEnvVarReader(configs::get, warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)
     }
 
@@ -76,12 +96,14 @@ internal class LogsExporterEnvVarsTest {
             LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
             OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
+            OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2"
         )
         assertEquals(
             LogRecordProcessorBehavior(
                 http = OtlpHttpExporterBehavior(
                     endpoint = "http://localhost:4317",
-                    timeout = 1
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
                 )
             ),
             toBehavior(configs::get),
@@ -89,25 +111,20 @@ internal class LogsExporterEnvVarsTest {
         configs.putAll(
             mapOf(
                 LogsExporterEnvVars.OTLP_LOGS_ENDPOINT to "http://localhost:4317/logs",
-                LogsExporterEnvVars.OTLP_LOGS_TIMEOUT to "2"
+                LogsExporterEnvVars.OTLP_LOGS_TIMEOUT to "2",
+                LogsExporterEnvVars.OTLP_LOGS_HEADERS to "key3=value3,key4=value4"
             )
         )
         assertEquals(
             LogRecordProcessorBehavior(
                 http = OtlpHttpExporterBehavior(
                     endpoint = "http://localhost:4317/logs",
-                    timeout = 2
+                    timeout = 2,
+                    headers = mapOf("key3" to "value3", "key4" to "value4")
                 )
             ),
             toBehavior(configs::get),
         )
-    }
-
-    private fun env(exporter: String): (String) -> String? {
-        val values = buildMap {
-            put(LogsExporterEnvVars.LOGS_EXPORTER, exporter)
-        }
-        return values::get
     }
 
     private fun toBehavior(getEnvVar: (String) -> String?) =

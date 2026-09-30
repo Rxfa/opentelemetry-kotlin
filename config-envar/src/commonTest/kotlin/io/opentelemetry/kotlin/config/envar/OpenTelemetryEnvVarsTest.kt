@@ -86,7 +86,7 @@ internal class OpenTelemetryEnvVarsTest {
                 ),
                 processor = SpanProcessorBehavior(
                     console = ConsoleExporterBehavior(),
-                ),
+                )
             ),
             loggerProvider = LoggerProviderBehavior(
                 logLimits = LogLimitsBehavior(
@@ -95,7 +95,7 @@ internal class OpenTelemetryEnvVarsTest {
                 ),
                 processor = LogRecordProcessorBehavior(
                     console = ConsoleExporterBehavior(),
-                )
+                ),
             ),
         )
         assertEquals(expected, toBehavior(env::get))
@@ -142,9 +142,16 @@ internal class OpenTelemetryEnvVarsTest {
         val env = mapOf(
             TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
             LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
+            "OTEL_EXPORTER_OTLP_ENDPOINT" to "http://localhost:4317",
+            "OTEL_EXPORTER_OTLP_TIMEOUT" to "1",
+            "OTEL_EXPORTER_OTLP_HEADERS" to "key1=value1,key2=value2",
         )
         val behavior = toBehavior(env::get)
-        val http = OtlpHttpExporterBehavior()
+        val http = OtlpHttpExporterBehavior(
+            endpoint = "http://localhost:4317",
+            timeout = 1,
+            headers = mapOf("key1" to "value1", "key2" to "value2")
+        )
         assertEquals(SpanProcessorBehavior(http = http), behavior.tracerProvider?.processor)
         assertEquals(LogRecordProcessorBehavior(http = http), behavior.loggerProvider?.processor)
     }

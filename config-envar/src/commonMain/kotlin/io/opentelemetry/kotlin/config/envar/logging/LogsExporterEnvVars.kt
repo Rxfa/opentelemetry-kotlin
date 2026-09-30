@@ -32,7 +32,11 @@ class LogsExporterEnvVars(
                         endpoint = reader.readString(OTLP_LOGS_ENDPOINT)
                             ?: reader.readString(OpenTelemetryEnvVars.OTLP_ENDPOINT),
                         timeout = reader.readNonNegativeLong(OTLP_LOGS_TIMEOUT)
-                            ?: reader.readNonNegativeLong(OpenTelemetryEnvVars.OTLP_TIMEOUT)
+                            ?: reader.readNonNegativeLong(OpenTelemetryEnvVars.OTLP_TIMEOUT),
+                        headers = OtlpHttpExporterBehavior.buildHeaderMap(
+                            reader.readString(OTLP_LOGS_HEADERS)
+                                ?: reader.readString(OpenTelemetryEnvVars.OTLP_HEADERS)
+                        )
                     )
                 )
             )
@@ -45,5 +49,12 @@ class LogsExporterEnvVars(
         const val LOGS_EXPORTER = "OTEL_LOGS_EXPORTER"
         const val OTLP_LOGS_ENDPOINT = "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"
         const val OTLP_LOGS_TIMEOUT = "OTEL_EXPORTER_OTLP_LOGS_TIMEOUT"
+        const val OTLP_LOGS_HEADERS = "OTEL_EXPORTER_OTLP_LOGS_HEADERS"
+
+        const val CONSOLE = "console"
+        const val OTLP = "otlp"
+        const val LOGGING = "logging"
+        const val NONE = "none"
+        const val OTLP_STDOUT = "otlp/stdout"
     }
 }
