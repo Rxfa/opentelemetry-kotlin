@@ -13,7 +13,7 @@ internal class SpanLimitsEnvVarsTest {
             SpanLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "1",
             SpanLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "2",
             SpanLimitsEnvVars.LINK_COUNT_LIMIT to "3",
-            SpanLimitsEnvVars.EVENT_COUNT_LIMIT to "1",
+            SpanLimitsEnvVars.EVENT_COUNT_LIMIT to "4",
             SpanLimitsEnvVars.EVENT_ATTRIBUTE_COUNT_LIMIT to "5",
             SpanLimitsEnvVars.LINK_ATTRIBUTE_COUNT_LIMIT to "6",
         )

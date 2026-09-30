@@ -3,6 +3,7 @@ package io.opentelemetry.kotlin.config.envar.logging
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpExporterBehavior
+import io.opentelemetry.kotlin.config.envar.Exporter
 import io.opentelemetry.kotlin.config.envar.OpenTelemetryEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
@@ -22,23 +23,22 @@ internal class LogsExporterEnvVarsTest {
     fun `should map implemented exporters`() {
         assertEquals(
             LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
-            toBehavior(env(LogsExporterEnvVars.CONSOLE)),
+            toBehavior(env(Exporter.CONSOLE.value)),
         )
         assertEquals(
             LogRecordProcessorBehavior(http = OtlpHttpExporterBehavior()),
-            toBehavior(env(LogsExporterEnvVars.OTLP)),
+            toBehavior(env(Exporter.OTLP.value)),
         )
     }
 
     @Test
     fun `should leave known non-implemented exporters unset`() {
         val exporters =
-            listOf(LogsExporterEnvVars.LOGGING, LogsExporterEnvVars.NONE, LogsExporterEnvVars.OTLP_STDOUT, "")
-        exporters.forEach {
-                name ->
+            listOf(Exporter.LOGGING, Exporter.NONE, Exporter.OTLP_STDOUT)
+        exporters.forEach { exporter ->
             assertNull(
-                toBehavior(env(name)),
-                "<$name> should not configure a processor"
+                toBehavior(env(exporter.value)),
+                "<$exporter> should not configure a processor"
             )
         }
     }
@@ -53,7 +53,7 @@ internal class LogsExporterEnvVarsTest {
         val warnings = mutableListOf<EnvVarReadWarning>()
         LogsExporterEnvVars(reportingEnvVarReader(env(unknownExporter), warnings::add)).toBehavior()
         assertEquals(1, warnings.size)
-        assertEquals(LogsExporterEnvVars.EXPORTER, warnings.single().name)
+        assertEquals(LogsExporterEnvVars.LOGS_EXPORTER, warnings.single().name)
     }
 
     @Test
@@ -66,14 +66,14 @@ internal class LogsExporterEnvVarsTest {
     @Test
     fun `should not warn on known non-implemented exporters`() {
         val warnings = mutableListOf<EnvVarReadWarning>()
-        LogsExporterEnvVars(reportingEnvVarReader(env(LogsExporterEnvVars.LOGGING), warnings::add)).toBehavior()
+        LogsExporterEnvVars(reportingEnvVarReader(env(Exporter.LOGGING.value), warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)
     }
 
     @Test
     fun `Signal-specific configs override base configs`() {
         val configs = mutableMapOf(
-            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.OTLP,
+            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
             OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
         )
@@ -105,7 +105,7 @@ internal class LogsExporterEnvVarsTest {
 
     private fun env(exporter: String): (String) -> String? {
         val values = buildMap {
-            put(LogsExporterEnvVars.EXPORTER, exporter)
+            put(LogsExporterEnvVars.LOGS_EXPORTER, exporter)
         }
         return values::get
     }

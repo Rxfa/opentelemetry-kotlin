@@ -66,8 +66,8 @@ internal class OpenTelemetryEnvVarsTest {
             SpanLimitsEnvVars.LINK_ATTRIBUTE_COUNT_LIMIT to "8",
             LogLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "9",
             LogLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "10",
-            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.CONSOLE,
-            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.CONSOLE,
+            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.CONSOLE.value,
+            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
         )
 
         val expected = OpenTelemetryBehavior(
@@ -128,8 +128,8 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should map console exporter env vars onto processor behavior`() {
         val env = mapOf(
-            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.CONSOLE,
-            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.CONSOLE,
+            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.CONSOLE.value,
+            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
         )
         val behavior = toBehavior(env::get)
         val console = ConsoleExporterBehavior()
@@ -140,8 +140,8 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should map otlp http exporter env vars onto processor behavior`() {
         val env = mapOf(
-            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.OTLP,
-            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.OTLP,
+            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
+            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
         )
         val behavior = toBehavior(env::get)
         val http = OtlpHttpExporterBehavior()
@@ -161,8 +161,8 @@ internal class OpenTelemetryEnvVarsTest {
         val env = mapOf(
             AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "invalid",
             SamplerEnvVars.SAMPLER to "not_a_sampler",
-            TracesExporterEnvVars.EXPORTER to "not_an_exporter",
-            LogsExporterEnvVars.EXPORTER to "not_an_exporter",
+            TracesExporterEnvVars.TRACES_EXPORTER to "not_an_exporter",
+            LogsExporterEnvVars.LOGS_EXPORTER to "not_an_exporter",
         )
         val warnings = mutableListOf<EnvVarReadWarning>()
         toBehavior(env::get, warnings::add)
@@ -171,8 +171,8 @@ internal class OpenTelemetryEnvVarsTest {
             setOf(
                 AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT,
                 SamplerEnvVars.SAMPLER,
-                TracesExporterEnvVars.EXPORTER,
-                LogsExporterEnvVars.EXPORTER,
+                TracesExporterEnvVars.TRACES_EXPORTER,
+                LogsExporterEnvVars.LOGS_EXPORTER,
             ),
             warnings.map { it.name }.toSet(),
         )
