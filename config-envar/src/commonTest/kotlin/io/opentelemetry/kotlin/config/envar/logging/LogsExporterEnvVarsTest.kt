@@ -7,7 +7,6 @@ import io.opentelemetry.kotlin.config.envar.Exporter
 import io.opentelemetry.kotlin.config.envar.OpenTelemetryEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
-import io.opentelemetry.kotlin.config.envar.tracing.TracesExporterEnvVars
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -23,7 +22,7 @@ internal class LogsExporterEnvVarsTest {
     @Test
     fun `should map implemented exporters`() {
         var configs = mapOf(
-            LogsExporterEnvVars.LOGS_EXPORTER to LogsExporterEnvVars.CONSOLE,
+            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
         )
         assertEquals(
             LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
@@ -31,7 +30,7 @@ internal class LogsExporterEnvVarsTest {
         )
 
         configs = mapOf(
-            LogsExporterEnvVars.LOGS_EXPORTER to TracesExporterEnvVars.OTLP,
+            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
             OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "1",
             OpenTelemetryEnvVars.OTLP_HEADERS to "key1=value1,key2=value2",
@@ -84,7 +83,7 @@ internal class LogsExporterEnvVarsTest {
 
     @Test
     fun `should not warn on known non-implemented exporters`() {
-        val configs = mapOf(LogsExporterEnvVars.LOGS_EXPORTER to LogsExporterEnvVars.LOGGING)
+        val configs = mapOf(LogsExporterEnvVars.LOGS_EXPORTER to Exporter.LOGGING.value)
         val warnings = mutableListOf<EnvVarReadWarning>()
         LogsExporterEnvVars(reportingEnvVarReader(configs::get, warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)

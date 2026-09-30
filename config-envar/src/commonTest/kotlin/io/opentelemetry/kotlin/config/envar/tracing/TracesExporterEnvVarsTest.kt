@@ -82,7 +82,7 @@ internal class TracesExporterEnvVarsTest {
 
     @Test
     fun `should not warn on known non-implemented exporters`() {
-        val configs = mapOf(TracesExporterEnvVars.TRACES_EXPORTER to TracesExporterEnvVars.OTLP)
+        val configs = mapOf(TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value)
         val warnings = mutableListOf<EnvVarReadWarning>()
         TracesExporterEnvVars(reportingEnvVarReader(configs::get, warnings::add)).toBehavior()
         assertEquals(emptyList(), warnings)

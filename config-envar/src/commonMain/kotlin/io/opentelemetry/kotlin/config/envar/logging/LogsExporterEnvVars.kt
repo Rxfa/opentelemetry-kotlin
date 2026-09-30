@@ -50,11 +50,5 @@ class LogsExporterEnvVars(
         const val OTLP_LOGS_ENDPOINT = "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"
         const val OTLP_LOGS_TIMEOUT = "OTEL_EXPORTER_OTLP_LOGS_TIMEOUT"
         const val OTLP_LOGS_HEADERS = "OTEL_EXPORTER_OTLP_LOGS_HEADERS"
-
-        const val CONSOLE = "console"
-        const val OTLP = "otlp"
-        const val LOGGING = "logging"
-        const val NONE = "none"
-        const val OTLP_STDOUT = "otlp/stdout"
     }
 }
