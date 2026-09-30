@@ -102,7 +102,8 @@ internal class LogsExporterEnvVarsTest {
             LogRecordProcessorBehavior(
                 http = OtlpHttpExporterBehavior(
                     endpoint = "http://localhost:4317",
-                    timeout = 1
+                    timeout = 1,
+                    headers = mapOf("key1" to "value1", "key2" to "value2")
                 )
             ),
             toBehavior(configs::get),
