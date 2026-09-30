@@ -11,8 +11,13 @@ import io.opentelemetry.kotlin.behavior.SamplerBehavior
 import io.opentelemetry.kotlin.behavior.SpanLimitsBehavior
 import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.TracerProviderBehavior
+import io.opentelemetry.kotlin.config.envar.logging.LogLimitsEnvVars
+import io.opentelemetry.kotlin.config.envar.logging.LogsExporterEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
+import io.opentelemetry.kotlin.config.envar.tracing.SamplerEnvVars
+import io.opentelemetry.kotlin.config.envar.tracing.SpanLimitsEnvVars
+import io.opentelemetry.kotlin.config.envar.tracing.TracesExporterEnvVars
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -30,9 +35,9 @@ internal class OpenTelemetryEnvVarsTest {
     fun globalAndLogRecordLimits() {
         val behavior = behaviorFrom(
             mapOf(
-                "OTEL_ATTRIBUTE_COUNT_LIMIT" to "64",
-                "OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT" to "256",
-                "OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT" to "8",
+                AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "64",
+                AttributeLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "256",
+                LogLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "8",
             )
         )
         assertEquals(
@@ -44,23 +49,23 @@ internal class OpenTelemetryEnvVarsTest {
 
     @Test
     fun disallowedValueUnset() {
-        val behavior = behaviorFrom(mapOf("OTEL_ATTRIBUTE_COUNT_LIMIT" to "-1"))
+        val behavior = behaviorFrom(mapOf(AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "-1"))
         assertNull(behavior.attributeLimits?.attributeCountLimit)
     }
 
     @Test
     fun `should read every node from its own env vars`() {
         val env = mapOf(
-            "OTEL_ATTRIBUTE_COUNT_LIMIT" to "1",
-            "OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT" to "2",
-            "OTEL_SPAN_ATTRIBUTE_COUNT_LIMIT" to "3",
-            "OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT" to "4",
-            "OTEL_SPAN_LINK_COUNT_LIMIT" to "5",
-            "OTEL_SPAN_EVENT_COUNT_LIMIT" to "6",
-            "OTEL_EVENT_ATTRIBUTE_COUNT_LIMIT" to "7",
-            "OTEL_LINK_ATTRIBUTE_COUNT_LIMIT" to "8",
-            "OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT" to "9",
-            "OTEL_LOGRECORD_ATTRIBUTE_VALUE_LENGTH_LIMIT" to "10",
+            AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "1",
+            AttributeLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "2",
+            SpanLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "3",
+            SpanLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "4",
+            SpanLimitsEnvVars.LINK_COUNT_LIMIT to "5",
+            SpanLimitsEnvVars.EVENT_COUNT_LIMIT to "6",
+            SpanLimitsEnvVars.EVENT_ATTRIBUTE_COUNT_LIMIT to "7",
+            SpanLimitsEnvVars.LINK_ATTRIBUTE_COUNT_LIMIT to "8",
+            LogLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "9",
+            LogLimitsEnvVars.ATTRIBUTE_VALUE_LENGTH_LIMIT to "10",
         )
 
         val expected = OpenTelemetryBehavior(
@@ -101,7 +106,7 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should map sampler env vars`() {
         val env = mapOf(
-            "OTEL_TRACES_SAMPLER" to "always_off",
+            SamplerEnvVars.SAMPLER to SamplerEnvVars.ALWAYS_OFF,
         )
         val behavior = toBehavior(env::get)
         assertEquals(SamplerBehavior.AlwaysOff, behavior.tracerProvider?.sampler)
@@ -115,8 +120,8 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should map console exporter env vars onto processor behavior`() {
         val env = mapOf(
-            "OTEL_TRACES_EXPORTER" to "console",
-            "OTEL_LOGS_EXPORTER" to "console",
+            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.CONSOLE,
+            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.CONSOLE,
         )
         val behavior = toBehavior(env::get)
         val console = ConsoleExporterBehavior()
@@ -127,8 +132,8 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should map otlp http exporter env vars onto processor behavior`() {
         val env = mapOf(
-            "OTEL_TRACES_EXPORTER" to "otlp",
-            "OTEL_LOGS_EXPORTER" to "otlp",
+            TracesExporterEnvVars.EXPORTER to TracesExporterEnvVars.OTLP,
+            LogsExporterEnvVars.EXPORTER to LogsExporterEnvVars.OTLP,
         )
         val behavior = toBehavior(env::get)
         val http = OtlpHttpExporterBehavior()
@@ -146,20 +151,20 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should forward warnings from invalid env vars`() {
         val env = mapOf(
-            "OTEL_ATTRIBUTE_COUNT_LIMIT" to "invalid",
-            "OTEL_TRACES_SAMPLER" to "not_a_sampler",
-            "OTEL_TRACES_EXPORTER" to "not_an_exporter",
-            "OTEL_LOGS_EXPORTER" to "not_an_exporter",
+            AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT to "invalid",
+            SamplerEnvVars.SAMPLER to "not_a_sampler",
+            TracesExporterEnvVars.EXPORTER to "not_an_exporter",
+            LogsExporterEnvVars.EXPORTER to "not_an_exporter",
         )
         val warnings = mutableListOf<EnvVarReadWarning>()
         toBehavior(env::get, warnings::add)
 
         assertEquals(
             setOf(
-                "OTEL_ATTRIBUTE_COUNT_LIMIT",
-                "OTEL_TRACES_SAMPLER",
-                "OTEL_TRACES_EXPORTER",
-                "OTEL_LOGS_EXPORTER",
+                AttributeLimitsEnvVars.ATTRIBUTE_COUNT_LIMIT,
+                SamplerEnvVars.SAMPLER,
+                TracesExporterEnvVars.EXPORTER,
+                LogsExporterEnvVars.EXPORTER,
             ),
             warnings.map { it.name }.toSet(),
         )
