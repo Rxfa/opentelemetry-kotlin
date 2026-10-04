@@ -6,7 +6,7 @@ import kotlin.test.assertNull
 
 class SeverityLevelTest {
     @Test
-    fun correctlyMapsAllLevels(){
+    fun correctlyMapsAllLevels() {
         SeverityLevel.entries.forEach {
             assertEquals(it, it.name.toSeverityLevel())
             assertEquals(it, it.name.lowercase().toSeverityLevel())
@@ -14,7 +14,7 @@ class SeverityLevelTest {
     }
 
     @Test
-    fun invalidNameReturnsNull(){
+    fun invalidNameReturnsNull() {
         assertNull("invalid".toSeverityLevel())
     }
 }
