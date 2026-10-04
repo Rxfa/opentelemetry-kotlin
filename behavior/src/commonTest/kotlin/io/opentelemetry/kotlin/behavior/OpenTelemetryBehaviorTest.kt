@@ -2,17 +2,19 @@ package io.opentelemetry.kotlin.behavior
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 
 internal class OpenTelemetryBehaviorTest {
 
     @Test
-    fun everyFieldStartsUnset() {
+    fun startsWithDefaultValues() {
         val behavior = OpenTelemetryBehavior()
 
-        assertNull(behavior.fileFormat)
-        assertNull(behavior.disabled)
-        assertNull(behavior.logLevel)
+        assertEquals(OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION, behavior.fileFormat)
+        assertFalse(behavior.disabled)
+        assertEquals(OpenTelemetryBehavior.DEFAULT_LOG_LEVEL, behavior.logLevel)
         assertNull(behavior.distribution)
         assertNull(behavior.entities)
         assertNull(behavior.resource)
@@ -22,11 +24,54 @@ internal class OpenTelemetryBehaviorTest {
     }
 
     @Test
+    fun fileFormatAcceptsValidSupportedVersions() {
+        listOf(
+            "1.0",
+            "1.1",
+            "1.2",
+            "1.0-rc.2",
+            "1.2-beta.1",
+        ).forEach {
+            OpenTelemetryBehavior(fileFormat = it)
+        }
+    }
+
+    @Test
+    fun fileFormatRejectsUnsupportedVersions() {
+        listOf(
+            "1.3",
+            "2.0",
+            "2.1-rc.1",
+        ).forEach { version ->
+            assertFailsWith<IllegalArgumentException> {
+                OpenTelemetryBehavior(fileFormat = version)
+            }
+        }
+    }
+
+    @Test
+    fun fileFormatRejectsInvalidFormats() {
+        listOf(
+            "",
+            "1",
+            "1.",
+            ".2",
+            "1.2.3",
+            "v1.2",
+            "01.2",
+            "1.02",
+            "1.2-",
+            "1.2+build.1",
+        ).forEach { version ->
+            assertFailsWith<IllegalArgumentException> {
+                OpenTelemetryBehavior(fileFormat = version)
+            }
+        }
+    }
+
+    @Test
     fun mergingEmptyBehaviorChangesNothing() {
         val populated = OpenTelemetryBehavior(
-            fileFormat = "fileFormat",
-            disabled = true,
-            logLevel = SeverityLevel.ERROR,
             distribution = mapOf("a" to 1),
             entities = "entities",
             resource = ResourceBehavior(attributes = mapOf("a" to 1L)),
@@ -41,7 +86,7 @@ internal class OpenTelemetryBehaviorTest {
     @Test
     fun mergingIntoEmptyBehaviorAdoptsEverything() {
         val populated = OpenTelemetryBehavior(
-            fileFormat = "fileFormat",
+            fileFormat = "1.0",
             disabled = true,
             logLevel = SeverityLevel.ERROR,
             distribution = mapOf("a" to 1),
