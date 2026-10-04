@@ -29,6 +29,8 @@ enum class SeverityLevel {
 
 fun String.toSeverityLevel(): SeverityLevel? {
     return try {
+        // Should be interpreted in a case-insensitive manner
+        // See the spec: https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#enum
         SeverityLevel.valueOf(this.uppercase())
     } catch (_: IllegalArgumentException) {
         null
