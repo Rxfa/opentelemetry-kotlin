@@ -2,9 +2,9 @@ package io.opentelemetry.kotlin.behavior
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 internal class OpenTelemetryBehaviorTest {
 
@@ -32,7 +32,7 @@ internal class OpenTelemetryBehaviorTest {
             "1.0-rc.2",
             "1.2-beta.1",
         ).forEach {
-            OpenTelemetryBehavior(fileFormat = it)
+            assertTrue(OpenTelemetryBehavior.isValidFileFormat(it))
         }
     }
 
@@ -43,9 +43,7 @@ internal class OpenTelemetryBehaviorTest {
             "2.0",
             "2.1-rc.1",
         ).forEach { version ->
-            assertFailsWith<IllegalArgumentException> {
-                OpenTelemetryBehavior(fileFormat = version)
-            }
+            assertFalse(OpenTelemetryBehavior.isValidFileFormat(version))
         }
     }
 
@@ -63,9 +61,7 @@ internal class OpenTelemetryBehaviorTest {
             "1.2-",
             "1.2+build.1",
         ).forEach { version ->
-            assertFailsWith<IllegalArgumentException> {
-                OpenTelemetryBehavior(fileFormat = version)
-            }
+            assertFalse(OpenTelemetryBehavior.isValidFileFormat(version))
         }
     }
 
