@@ -18,7 +18,7 @@ data class OpenTelemetryBehavior(
      * See [VERSIONING.md](https://github.com/open-telemetry/opentelemetry-configuration/blob/main/VERSIONING.md) for
      * more details.
      */
-    val fileFormat: String = DEFAULT_FILE_FORMAT_VERSION,
+    val fileFormat: String,
     /**
      * Defines if the SDK is disabled or not.
      */
@@ -63,7 +63,7 @@ data class OpenTelemetryBehavior(
         val defaultVersion = parseVersion(DEFAULT_FILE_FORMAT_VERSION)
         require(isSupportedVersion(fileFormat)) {
             "Unsupported file format version: '$fileFormat'.\n" +
-                    "Supported versions are major=${defaultVersion.major}, minor<=${defaultVersion.minor}."
+                "Supported versions are major=${defaultVersion.major}, minor<=${defaultVersion.minor}."
         }
     }
 
@@ -121,6 +121,9 @@ data class OpenTelemetryBehavior(
  */
 @ExperimentalApi
 fun mergeBehaviors(layers: List<OpenTelemetryBehavior>): OpenTelemetryBehavior =
-    layers.fold(OpenTelemetryBehavior()) { merged, layer -> merged.mergeWith(layer) }
+    layers.fold(OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION)) {
+            merged, layer ->
+        merged.mergeWith(layer)
+    }
 
 typealias Distribution = Map<String, Any?>

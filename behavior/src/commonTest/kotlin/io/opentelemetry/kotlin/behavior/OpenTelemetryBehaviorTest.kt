@@ -9,7 +9,7 @@ internal class OpenTelemetryBehaviorTest {
 
     @Test
     fun startsWithDefaultValues() {
-        val behavior = OpenTelemetryBehavior()
+        val behavior = OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION)
 
         assertEquals(OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION, behavior.fileFormat)
         assertNull(behavior.disabled)
@@ -71,6 +71,7 @@ internal class OpenTelemetryBehaviorTest {
     @Test
     fun mergingEmptyBehaviorChangesNothing() {
         val populated = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             disabled = true,
             logLevel = SeverityLevel.ERROR,
             distribution = mapOf("a" to 1),
@@ -81,7 +82,14 @@ internal class OpenTelemetryBehaviorTest {
             tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior(linkCountLimit = 3)),
         )
 
-        assertEquals(populated, populated.mergeWith(OpenTelemetryBehavior()))
+        assertEquals(
+            populated,
+            populated.mergeWith(
+                OpenTelemetryBehavior(
+                    fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION
+                )
+            )
+        )
     }
 
     @Test
@@ -98,25 +106,34 @@ internal class OpenTelemetryBehaviorTest {
             tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior(linkCountLimit = 3)),
         )
 
-        assertEquals(populated, OpenTelemetryBehavior().mergeWith(populated))
+        assertEquals(
+            populated,
+            OpenTelemetryBehavior(
+                fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION
+            ).mergeWith(populated)
+        )
     }
 
     @Test
     fun staysUnsetWhenNoLayerConfiguresAnything() {
         assertEquals(
-            OpenTelemetryBehavior(),
-            OpenTelemetryBehavior().mergeWith(OpenTelemetryBehavior()),
+            OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION),
+            OpenTelemetryBehavior(
+                fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION
+            ).mergeWith(OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION)),
         )
     }
 
     @Test
     fun mergeRecursesIntoNestedBlocks() {
         val merged = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             tracerProvider = TracerProviderBehavior(
                 spanLimits = SpanLimitsBehavior(attributeCountLimit = 1, eventCountLimit = 4),
             ),
         ).mergeWith(
             OpenTelemetryBehavior(
+                fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
                 tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior(eventCountLimit = 99)),
             ),
         )
@@ -128,9 +145,11 @@ internal class OpenTelemetryBehaviorTest {
     @Test
     fun mergesResourceAndTracingBranchesIndependently() {
         val resourceLayer = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             resource = ResourceBehavior(attributes = mapOf("service.namespace" to "shop")),
         )
         val tracingLayer = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             resource = ResourceBehavior(attributes = mapOf("deployment.environment.name" to "prod")),
             tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior(linkCountLimit = 3)),
         )
@@ -147,9 +166,11 @@ internal class OpenTelemetryBehaviorTest {
     @Test
     fun mergesAttributeLimitsAndTracingBranchesIndependently() {
         val global = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             attributeLimits = AttributeLimitsBehavior(attributeCountLimit = 7),
         )
         val tracing = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior(linkCountLimit = 3)),
         )
 
@@ -162,9 +183,11 @@ internal class OpenTelemetryBehaviorTest {
     @Test
     fun mergesTracingAndLoggingBranchesIndependently() {
         val tracing = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior(linkCountLimit = 3)),
         )
         val logging = OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
             loggerProvider = LoggerProviderBehavior(logLimits = LogLimitsBehavior(attributeCountLimit = 7)),
         )
 
@@ -194,7 +217,10 @@ internal class OpenTelemetryBehaviorTest {
 
     @Test
     fun foldOfNoLayersIsEmpty() {
-        assertEquals(OpenTelemetryBehavior(), mergeBehaviors(emptyList()))
+        assertEquals(
+            OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION),
+            mergeBehaviors(emptyList())
+        )
     }
 
     @Test
@@ -207,11 +233,18 @@ internal class OpenTelemetryBehaviorTest {
     @Test
     fun foldIgnoresLayersThatConfiguredNothing() {
         val layer = configWithSpanLimits(SpanLimitsBehavior(linkCountLimit = 3))
-        val layers = listOf(OpenTelemetryBehavior(), layer, OpenTelemetryBehavior())
+        val layers = listOf(
+            OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION),
+            layer,
+            OpenTelemetryBehavior(fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION)
+        )
 
         assertEquals(layer, mergeBehaviors(layers))
     }
 
     private fun configWithSpanLimits(spanLimits: SpanLimitsBehavior) =
-        OpenTelemetryBehavior(tracerProvider = TracerProviderBehavior(spanLimits = spanLimits))
+        OpenTelemetryBehavior(
+            fileFormat = OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION,
+            tracerProvider = TracerProviderBehavior(spanLimits = spanLimits)
+        )
 }
