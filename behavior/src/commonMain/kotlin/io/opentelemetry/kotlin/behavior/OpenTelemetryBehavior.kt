@@ -18,7 +18,7 @@ data class OpenTelemetryBehavior(
      * See [VERSIONING.md](https://github.com/open-telemetry/opentelemetry-configuration/blob/main/VERSIONING.md) for
      * more details.
      */
-    val fileFormat: String,
+    val fileFormat: String? = null,
     /**
      * Defines if the SDK is disabled or not.
      */
@@ -57,13 +57,15 @@ data class OpenTelemetryBehavior(
     val loggerProvider: LoggerProviderBehavior? = null,
 ) : Behavior<OpenTelemetryBehavior> {
     init {
-        require(FILE_FORMAT_REGEX.matches(fileFormat)) {
-            "Invalid file format version: '$fileFormat'. Expected '<major>.<minor>' with an optional pre-release tag."
-        }
-        val defaultVersion = parseVersion(DEFAULT_FILE_FORMAT_VERSION)
-        require(isSupportedVersion(fileFormat)) {
-            "Unsupported file format version: '$fileFormat'.\n" +
-                "Supported versions are major=${defaultVersion.major}, minor<=${defaultVersion.minor}."
+        fileFormat?.let {
+            require(FILE_FORMAT_REGEX.matches(fileFormat)) {
+                "Invalid file format version: '$fileFormat'. Expected '<major>.<minor>' with an optional pre-release tag."
+            }
+            val defaultVersion = parseVersion(DEFAULT_FILE_FORMAT_VERSION)
+            require(isSupportedVersion(fileFormat)) {
+                "Unsupported file format version: '$fileFormat'.\n" +
+                    "Supported versions are major=${defaultVersion.major}, minor<=${defaultVersion.minor}."
+            }
         }
     }
 
@@ -94,7 +96,7 @@ data class OpenTelemetryBehavior(
     }
 
     override fun mergeWith(higher: OpenTelemetryBehavior): OpenTelemetryBehavior = copy(
-        fileFormat = higher.fileFormat,
+        fileFormat = higher.fileFormat ?: fileFormat,
         disabled = higher.disabled ?: disabled,
         logLevel = higher.logLevel ?: logLevel,
         distribution = mergeMap(distribution, higher.distribution),
@@ -106,7 +108,7 @@ data class OpenTelemetryBehavior(
     )
 
     companion object {
-        const val DEFAULT_FILE_FORMAT_VERSION = "1.2"
+        internal const val DEFAULT_FILE_FORMAT_VERSION = "1.2"
         val DEFAULT_LOG_LEVEL = SeverityLevel.INFO
 
         private val FILE_FORMAT_REGEX = Regex(
