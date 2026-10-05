@@ -2,9 +2,8 @@ package io.opentelemetry.kotlin.behavior
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 internal class OpenTelemetryBehaviorTest {
 
@@ -13,8 +12,8 @@ internal class OpenTelemetryBehaviorTest {
         val behavior = OpenTelemetryBehavior()
 
         assertEquals(OpenTelemetryBehavior.DEFAULT_FILE_FORMAT_VERSION, behavior.fileFormat)
-        assertFalse(behavior.disabled)
-        assertEquals(OpenTelemetryBehavior.DEFAULT_LOG_LEVEL, behavior.logLevel)
+        assertNull(behavior.disabled)
+        assertNull(behavior.logLevel)
         assertNull(behavior.distribution)
         assertNull(behavior.entities)
         assertNull(behavior.resource)
@@ -32,7 +31,7 @@ internal class OpenTelemetryBehaviorTest {
             "1.0-rc.2",
             "1.2-beta.1",
         ).forEach {
-            assertTrue(OpenTelemetryBehavior.isValidFileFormat(it))
+            OpenTelemetryBehavior(fileFormat = it)
         }
     }
 
@@ -43,7 +42,9 @@ internal class OpenTelemetryBehaviorTest {
             "2.0",
             "2.1-rc.1",
         ).forEach { version ->
-            assertFalse(OpenTelemetryBehavior.isValidFileFormat(version))
+            assertFailsWith<IllegalArgumentException> {
+                OpenTelemetryBehavior(fileFormat = version)
+            }
         }
     }
 
@@ -61,13 +62,17 @@ internal class OpenTelemetryBehaviorTest {
             "1.2-",
             "1.2+build.1",
         ).forEach { version ->
-            assertFalse(OpenTelemetryBehavior.isValidFileFormat(version))
+            assertFailsWith<IllegalArgumentException> {
+                OpenTelemetryBehavior(fileFormat = version)
+            }
         }
     }
 
     @Test
     fun mergingEmptyBehaviorChangesNothing() {
         val populated = OpenTelemetryBehavior(
+            disabled = true,
+            logLevel = SeverityLevel.ERROR,
             distribution = mapOf("a" to 1),
             entities = "entities",
             resource = ResourceBehavior(attributes = mapOf("a" to 1L)),

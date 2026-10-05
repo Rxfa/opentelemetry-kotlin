@@ -22,12 +22,12 @@ data class OpenTelemetryBehavior(
     /**
      * Defines if the SDK is disabled or not.
      */
-    val disabled: Boolean = false,
+    val disabled: Boolean? = null,
     /**
      * Log level of the internal logger, which in this repo is
      * [io.opentelemetry.kotlin.error.SdkErrorHandler] rather than a logger.
      */
-    val logLevel: SeverityLevel = DEFAULT_LOG_LEVEL,
+    val logLevel: SeverityLevel? = null,
     /**
      * Distro-specific parameters.
      * Out of scope for this repo, will be parsed and ignored with no failures on it.
@@ -56,11 +56,47 @@ data class OpenTelemetryBehavior(
      */
     val loggerProvider: LoggerProviderBehavior? = null,
 ) : Behavior<OpenTelemetryBehavior> {
+    init {
+        require(FILE_FORMAT_REGEX.matches(fileFormat)) {
+            "Invalid file format version: '$fileFormat'. Expected '<major>.<minor>' with an optional pre-release tag."
+        }
+        val defaultVersion = parseVersion(DEFAULT_FILE_FORMAT_VERSION)
+        require(isSupportedVersion(fileFormat)) {
+            "Unsupported file format version: '$fileFormat'.\n" +
+                    "Supported versions are major=${defaultVersion.major}, minor<=${defaultVersion.minor}."
+        }
+    }
+
+    private fun isSupportedVersion(version: String): Boolean {
+        val version = parseVersion(version)
+        val expected = parseVersion(DEFAULT_FILE_FORMAT_VERSION)
+        return expected.major == version.major && expected.minor >= version.minor
+    }
+
+    private data class Version(
+        val major: Int,
+        val minor: Int,
+        val tag: String?,
+    )
+
+    private fun parseVersion(version: String): Version {
+        val (numbers, tag) = version.split("-", limit = 2).let {
+            it[0] to it.getOrNull(1)
+        }
+
+        val (major, minor) = numbers.split(".", limit = 2).map(String::toInt)
+
+        return Version(
+            major = major,
+            minor = minor,
+            tag = tag,
+        )
+    }
 
     override fun mergeWith(higher: OpenTelemetryBehavior): OpenTelemetryBehavior = copy(
         fileFormat = higher.fileFormat,
-        disabled = higher.disabled,
-        logLevel = higher.logLevel,
+        disabled = higher.disabled ?: disabled,
+        logLevel = higher.logLevel ?: logLevel,
         distribution = mergeMap(distribution, higher.distribution),
         entities = higher.entities ?: entities,
         resource = mergeNode(resource, higher.resource),
@@ -73,38 +109,9 @@ data class OpenTelemetryBehavior(
         const val DEFAULT_FILE_FORMAT_VERSION = "1.2"
         val DEFAULT_LOG_LEVEL = SeverityLevel.INFO
 
-        fun isValidFileFormat(version: String): Boolean {
-            val fileFormatRegex = Regex(
-                """^(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"""
-            )
-            return fileFormatRegex.matches(version) && isSupportedVersion(version)
-        }
-
-        private fun isSupportedVersion(version: String): Boolean {
-            val version = parseVersion(version)
-            val expected = parseVersion(DEFAULT_FILE_FORMAT_VERSION)
-            return expected.major == version.major && expected.minor >= version.minor
-        }
-
-        private data class Version(
-            val major: Int,
-            val minor: Int,
-            val tag: String?,
+        private val FILE_FORMAT_REGEX = Regex(
+            """^(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"""
         )
-
-        private fun parseVersion(version: String): Version {
-            val (numbers, tag) = version.split("-", limit = 2).let {
-                it[0] to it.getOrNull(1)
-            }
-
-            val (major, minor) = numbers.split(".", limit = 2).map(String::toInt)
-
-            return Version(
-                major = major,
-                minor = minor,
-                tag = tag,
-            )
-        }
     }
 }
 
