@@ -32,8 +32,8 @@ internal class OpenTelemetryConfigurationParserTest {
     fun parsesGoldenConfigFile() {
         val expected = OpenTelemetryConfiguration(
             fileFormat = "1.0",
-            disabled = false,
-            logLevel = SeverityNumber.INFO,
+            disabled = true,
+            logLevel = SeverityNumber.ERROR,
             resource = Resource(
                 attributes = listOf(
                     AttributeNameValue(

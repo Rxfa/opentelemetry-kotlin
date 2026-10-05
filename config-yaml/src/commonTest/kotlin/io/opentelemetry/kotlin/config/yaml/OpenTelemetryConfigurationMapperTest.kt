@@ -9,6 +9,7 @@ import io.opentelemetry.kotlin.behavior.LoggerProviderBehavior
 import io.opentelemetry.kotlin.behavior.OpenTelemetryBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpExporterBehavior
 import io.opentelemetry.kotlin.behavior.SamplerBehavior
+import io.opentelemetry.kotlin.behavior.SeverityLevel
 import io.opentelemetry.kotlin.behavior.SpanLimitsBehavior
 import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.TracerProviderBehavior
@@ -31,6 +32,7 @@ import io.opentelemetry.kotlin.config.schema.model.TracerProvider
 import io.opentelemetry.kotlin.framework.loadTestFixture
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 internal class OpenTelemetryConfigurationMapperTest {
@@ -40,6 +42,9 @@ internal class OpenTelemetryConfigurationMapperTest {
         val config = OpenTelemetryConfigurationParser().parse(loadTestFixture(GOLDEN_FILE))
 
         val expected = OpenTelemetryBehavior(
+            fileFormat = FILE_FORMAT,
+            disabled = true,
+            logLevel = SeverityLevel.ERROR,
             attributeLimits = AttributeLimitsBehavior(
                 attributeCountLimit = 128,
                 attributeValueLengthLimit = 4096,
@@ -61,9 +66,28 @@ internal class OpenTelemetryConfigurationMapperTest {
     }
 
     @Test
-    fun leavesOmittedSectionsUnset() {
-        val config = OpenTelemetryConfiguration(fileFormat = FILE_FORMAT)
-        assertEquals(OpenTelemetryBehavior(), config.toBehavior())
+    fun startsWithDefaultValues() {
+        val config = OpenTelemetryConfiguration(
+            fileFormat = FILE_FORMAT,
+        )
+        assertEquals(
+            OpenTelemetryBehavior(
+                fileFormat = FILE_FORMAT,
+                disabled = false,
+                logLevel = SeverityLevel.INFO,
+            ),
+            config.toBehavior()
+        )
+    }
+
+    @Test
+    fun invalidFileFormatThrows() {
+        val config = OpenTelemetryConfiguration(
+            fileFormat = "9.4",
+        )
+        assertFailsWith<IllegalArgumentException> {
+            config.toBehavior()
+        }
     }
 
     @Test
@@ -101,6 +125,9 @@ internal class OpenTelemetryConfigurationMapperTest {
 
         assertEquals(
             OpenTelemetryBehavior(
+                fileFormat = FILE_FORMAT,
+                disabled = false,
+                logLevel = SeverityLevel.INFO,
                 tracerProvider = TracerProviderBehavior(
                     processor = SpanProcessorBehavior(console = console),
                 ),
@@ -152,6 +179,9 @@ internal class OpenTelemetryConfigurationMapperTest {
 
         assertEquals(
             OpenTelemetryBehavior(
+                fileFormat = FILE_FORMAT,
+                disabled = false,
+                logLevel = SeverityLevel.INFO,
                 tracerProvider = TracerProviderBehavior(
                     processor = SpanProcessorBehavior(http = http),
                 ),
