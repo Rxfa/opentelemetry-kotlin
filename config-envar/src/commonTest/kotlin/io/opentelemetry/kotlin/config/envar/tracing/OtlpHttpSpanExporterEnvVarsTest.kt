@@ -20,7 +20,7 @@ internal class OtlpHttpSpanExporterEnvVarsTest {
                 timeout = 10_000,
                 headers = mapOf("key1" to "value1", "key2" to "value2")
             ),
-            OtlpHttpSpanExporterEnvVars(reportingEnvVarReader(configs::get)).toBehavior(),
+            toBehavior(configs::get),
         )
     }
 
