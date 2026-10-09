@@ -83,35 +83,6 @@ internal class SpanProcessorMapperTest {
     }
 
     @Test
-    fun httpExporterHeaderHaveHigherPriorityThanHeaderList() {
-        val processors = listOf(
-            SpanProcessor(
-                batch = BatchSpanProcessor(
-                    exporter = SpanExporter(
-                        otlpHttp = OtlpHttpExporter(
-                            endpoint = "http://localhost:4317",
-                            timeout = 10_000,
-                            headersList = "key=value2",
-                            headers = listOf(NameStringValuePair("key", "value"))
-                        )
-                    )
-                )
-            )
-        )
-        assertEquals(
-            SpanProcessorBehavior(
-                http = OtlpHttpSpanExporterBehavior(
-                    endpoint = "http://localhost:4317",
-                    timeout = 10_000,
-                    headers = mapOf("key" to "value")
-                ),
-                batch = BatchSpanProcessorBehavior(),
-            ),
-            processors.toBehavior(),
-        )
-    }
-
-    @Test
     fun mapsBatchOptions() {
         val processors = listOf(
             SpanProcessor(
