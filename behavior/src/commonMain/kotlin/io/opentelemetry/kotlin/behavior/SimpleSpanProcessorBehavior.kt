@@ -11,9 +11,7 @@ import io.opentelemetry.kotlin.ExperimentalApi
  */
 @ExperimentalApi
 data class SimpleSpanProcessorBehavior(
-    /**
-     * Exporter that receives each span.
-     * */
+    /** Span exporter. */
     val exporter: SpanExporterBehavior? = null
 ) : Behavior<SimpleSpanProcessorBehavior> {
     override fun mergeWith(higher: SimpleSpanProcessorBehavior): SimpleSpanProcessorBehavior = copy(
