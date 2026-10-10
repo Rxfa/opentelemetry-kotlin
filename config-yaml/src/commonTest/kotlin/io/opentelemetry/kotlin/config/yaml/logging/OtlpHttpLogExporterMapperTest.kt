@@ -1,12 +1,12 @@
-package io.opentelemetry.kotlin.config.yaml
+package io.opentelemetry.kotlin.config.yaml.logging
 
-import io.opentelemetry.kotlin.behavior.OtlpHttpSpanExporterBehavior
+import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import io.opentelemetry.kotlin.config.schema.model.NameStringValuePair
 import io.opentelemetry.kotlin.config.schema.model.OtlpHttpExporter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class OtlpHttpSpanExporterMapperTest {
+internal class OtlpHttpLogExporterMapperTest {
     @Test
     fun mapsHttp() {
         val exporter = OtlpHttpExporter(
@@ -15,7 +15,7 @@ internal class OtlpHttpSpanExporterMapperTest {
             headersList = "key=value"
         )
         assertEquals(
-            OtlpHttpSpanExporterBehavior(
+            OtlpHttpLogsExporterBehavior(
                 endpoint = "http://localhost:4317",
                 timeout = 10_000,
                 headers = mapOf("key" to "value")
@@ -33,12 +33,12 @@ internal class OtlpHttpSpanExporterMapperTest {
             headers = listOf(NameStringValuePair("key", "value"))
         )
         assertEquals(
-            OtlpHttpSpanExporterBehavior(
+            OtlpHttpLogsExporterBehavior(
                 endpoint = "http://localhost:4317",
                 timeout = 10_000,
                 headers = mapOf("key" to "value")
             ),
-        exporter.toBehavior(),
+            exporter.toBehavior(),
         )
     }
 
@@ -46,10 +46,10 @@ internal class OtlpHttpSpanExporterMapperTest {
     fun httpExporterSkipsMalformedHeaders(){
         val exporter = OtlpHttpExporter(headersList = "key=value,key2,key3=value3",)
         assertEquals(
-            OtlpHttpSpanExporterBehavior(
+            OtlpHttpLogsExporterBehavior(
                 headers = mapOf("key" to "value", "key3" to "value3")
             ),
-        exporter.toBehavior(),
+            exporter.toBehavior(),
         )
     }
 }
