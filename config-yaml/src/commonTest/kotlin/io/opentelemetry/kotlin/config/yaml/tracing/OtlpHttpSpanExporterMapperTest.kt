@@ -38,18 +38,18 @@ internal class OtlpHttpSpanExporterMapperTest {
                 timeout = 10_000,
                 headers = mapOf("key" to "value")
             ),
-        exporter.toBehavior(),
+            exporter.toBehavior(),
         )
     }
 
     @Test
-    fun httpExporterSkipsMalformedHeaders(){
+    fun httpExporterSkipsMalformedHeaders() {
         val exporter = OtlpHttpExporter(headersList = "key=value,key2,key3=value3",)
         assertEquals(
             OtlpHttpSpanExporterBehavior(
                 headers = mapOf("key" to "value", "key3" to "value3")
             ),
-        exporter.toBehavior(),
+            exporter.toBehavior(),
         )
     }
 }
