@@ -2,7 +2,6 @@ package io.opentelemetry.kotlin.behavior
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 internal class SimpleSpanProcessorBehaviorTest {
     @Test

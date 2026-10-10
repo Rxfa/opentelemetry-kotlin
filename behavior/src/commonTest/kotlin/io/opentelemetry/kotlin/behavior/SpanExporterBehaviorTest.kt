@@ -6,7 +6,7 @@ import kotlin.test.assertNull
 
 internal class SpanExporterBehaviorTest {
     @Test
-    fun everyFieldStartsUnset(){
+    fun everyFieldStartsUnset() {
         val exporter = SpanExporterBehavior()
         assertNull(exporter.console)
         assertNull(exporter.http)
