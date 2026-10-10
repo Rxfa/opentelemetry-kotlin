@@ -13,9 +13,9 @@ fun OtlpHttpExporter.toBehavior(): OtlpHttpLogsExporterBehavior {
     // if there are duplicate keys, the last one wins.
     // The spec says that in the case of duplicate keys, [headers] have a higher precedence.
     val headers = OtlpExporter.buildHeaderMap(headersList).orEmpty() +
-            OtlpExporter.buildHeaderMap(
-                headers?.joinToString(separator = ",") { pair -> "${pair.name}=${pair.value}" }
-            ).orEmpty()
+        OtlpExporter.buildHeaderMap(
+            headers?.joinToString(separator = ",") { pair -> "${pair.name}=${pair.value}" }
+        ).orEmpty()
     return OtlpHttpLogsExporterBehavior(
         endpoint = endpoint,
         timeout = timeout,

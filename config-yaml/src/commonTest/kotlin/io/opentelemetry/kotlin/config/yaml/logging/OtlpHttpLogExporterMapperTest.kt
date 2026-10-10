@@ -43,7 +43,7 @@ internal class OtlpHttpLogExporterMapperTest {
     }
 
     @Test
-    fun httpExporterSkipsMalformedHeaders(){
+    fun httpExporterSkipsMalformedHeaders() {
         val exporter = OtlpHttpExporter(headersList = "key=value,key2,key3=value3",)
         assertEquals(
             OtlpHttpLogsExporterBehavior(
