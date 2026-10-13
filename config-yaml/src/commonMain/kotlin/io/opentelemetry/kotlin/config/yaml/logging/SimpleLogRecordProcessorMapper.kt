@@ -1,4 +1,4 @@
-package io.opentelemetry.kotlin.config.yaml
+package io.opentelemetry.kotlin.config.yaml.logging
 
 import io.opentelemetry.kotlin.ExperimentalApi
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
@@ -15,7 +15,7 @@ fun SimpleLogRecordProcessor?.toBehavior(): SimpleLogRecordProcessorBehavior? {
         return null
     }
 
-    val exporterBehavior = exporter?.console?.let {
+    val exporterBehavior = exporter.console?.let {
         LogRecordExporterBehavior(console = ConsoleExporterBehavior())
     }
     return SimpleLogRecordProcessorBehavior(exporter = exporterBehavior)
