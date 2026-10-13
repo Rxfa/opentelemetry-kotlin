@@ -3,9 +3,8 @@ package io.opentelemetry.kotlin.config.yaml.logging
 import io.opentelemetry.kotlin.ExperimentalApi
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
-import io.opentelemetry.kotlin.behavior.OtlpExporter
-import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import io.opentelemetry.kotlin.config.schema.model.LogRecordProcessor
+import io.opentelemetry.kotlin.config.yaml.toBehavior
 
 /**
  * Maps`logger_provider.processors` onto processor behavior.
@@ -23,21 +22,7 @@ fun List<LogRecordProcessor>.toBehavior(): LogRecordProcessorBehavior? {
 
         val httpExporter = processor.simple?.exporter?.otlpHttp ?: processor.batch?.exporter?.otlpHttp
         if (httpExporter != null) {
-            // if there are duplicate keys, the last one wins.
-            // The spec says that in the case of duplicate keys, [headers] have a higher precedence.
-            val headers =
-                OtlpExporter.buildHeaderMap(httpExporter.headersList).orEmpty() +
-                    OtlpExporter.buildHeaderMap(
-                        httpExporter.headers?.joinToString(separator = ",") { pair ->
-                            "${pair.name}=${pair.value}"
-                        }
-                    ).orEmpty()
-            val httpExporterBehavior = OtlpHttpLogsExporterBehavior(
-                endpoint = httpExporter.endpoint,
-                timeout = httpExporter.timeout,
-                headers = headers.ifEmpty { null }
-            )
-            return LogRecordProcessorBehavior(http = httpExporterBehavior, simple = simple)
+            return LogRecordProcessorBehavior(http = httpExporter.toBehavior(), simple = simple)
         }
     }
 
