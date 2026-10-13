@@ -6,6 +6,7 @@ import io.opentelemetry.kotlin.behavior.SimpleLogRecordProcessorBehavior
 import io.opentelemetry.kotlin.config.schema.model.ConsoleExporter
 import io.opentelemetry.kotlin.config.schema.model.LogRecordExporter
 import io.opentelemetry.kotlin.config.schema.model.SimpleLogRecordProcessor
+import io.opentelemetry.kotlin.config.yaml.logging.toBehavior
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
