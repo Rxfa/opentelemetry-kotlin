@@ -13,7 +13,7 @@ fun List<LogRecordProcessor>.toBehavior(): LogRecordProcessorBehavior? {
     // TODO: Add support to multiple exporters being in use simultaneously once we have the LogRecordProcessor
     //  fully implemented.
     for (processor in this) {
-        val simple = processor.simple.toBehavior()
+        val simple = processor.simple?.toBehavior()
         val consoleExporter = processor.simple?.exporter?.console ?: processor.batch?.exporter?.console
         if (consoleExporter != null) {
             return LogRecordProcessorBehavior(console = ConsoleExporterBehavior(), simple = simple)
