@@ -51,7 +51,15 @@ internal class LogRecordProcessorMapperTest {
                     timeout = 10_000,
                     headers = mapOf("key" to "value")
                 ),
-                simple = SimpleLogRecordProcessorBehavior(),
+                simple = SimpleLogRecordProcessorBehavior(
+                    exporter = LogRecordExporterBehavior(
+                        http = OtlpHttpLogsExporterBehavior(
+                            endpoint = "http://localhost:4317",
+                            timeout = 10_000,
+                            headers = mapOf("key" to "value")
+                        )
+                    )
+                ),
             ),
             processors.toBehavior(),
         )
