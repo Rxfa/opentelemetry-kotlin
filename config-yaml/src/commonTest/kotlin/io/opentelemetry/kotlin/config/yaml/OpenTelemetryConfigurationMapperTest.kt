@@ -1,6 +1,7 @@
 package io.opentelemetry.kotlin.config.yaml
 
 import io.opentelemetry.kotlin.behavior.AttributeLimitsBehavior
+import io.opentelemetry.kotlin.behavior.BatchLogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.IdGeneratorBehavior
 import io.opentelemetry.kotlin.behavior.LogLimitsBehavior
@@ -34,6 +35,7 @@ import io.opentelemetry.kotlin.config.schema.model.SpanLimits
 import io.opentelemetry.kotlin.config.schema.model.SpanProcessor
 import io.opentelemetry.kotlin.config.schema.model.TracerProvider
 import io.opentelemetry.kotlin.framework.loadTestFixture
+import kotlin.collections.listOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -119,7 +121,6 @@ internal class OpenTelemetryConfigurationMapperTest {
                 ),
                 loggerProvider = LoggerProviderBehavior(
                     processor = LogRecordProcessorBehavior(
-                        console = console,
                         simple = SimpleLogRecordProcessorBehavior(exporter = LogRecordExporterBehavior(console = console)),
                     ),
                 ),
@@ -131,10 +132,6 @@ internal class OpenTelemetryConfigurationMapperTest {
     @Test
     fun mapsHttpExportersOntoProcessorBehavior() {
         val spanExporter = OtlpHttpSpanExporterBehavior(
-            endpoint = "http://localhost:4317",
-            timeout = 10_000,
-        )
-        val logsExporter = OtlpHttpLogsExporterBehavior(
             endpoint = "http://localhost:4317",
             timeout = 10_000,
         )
@@ -177,7 +174,6 @@ internal class OpenTelemetryConfigurationMapperTest {
                 ),
                 loggerProvider = LoggerProviderBehavior(
                     processor = LogRecordProcessorBehavior(
-                        http = logsExporter,
                         simple = SimpleLogRecordProcessorBehavior(
                             exporter = LogRecordExporterBehavior(
                                 http = OtlpHttpLogsExporterBehavior(
