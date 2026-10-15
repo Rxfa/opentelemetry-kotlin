@@ -42,7 +42,7 @@ internal class BatchLogRecordProcessorMapperTest {
     }
 
     @Test
-    fun invalidFieldValuesFallbackToDefault(){
+    fun invalidFieldValuesFallbackToDefault() {
         val behavior = BatchLogRecordProcessor(
             scheduleDelay = -1,
             exportTimeout = -1,
