@@ -1,8 +1,6 @@
 package io.opentelemetry.kotlin.config.envar.logging
 
-import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
-import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import io.opentelemetry.kotlin.config.envar.Exporter
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
@@ -24,12 +22,12 @@ internal class LogsExporterEnvVarsTest {
             LogsExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
         )
         assertEquals(
-            LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
+            LogRecordProcessorBehavior(),
             toBehavior(configs::get),
         )
         configs = mapOf(LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value)
         assertEquals(
-            LogRecordProcessorBehavior(http = OtlpHttpLogsExporterBehavior()),
+            LogRecordProcessorBehavior(),
             toBehavior(configs::get),
         )
     }

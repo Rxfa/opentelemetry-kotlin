@@ -1,7 +1,6 @@
 package io.opentelemetry.kotlin.config.envar.logging
 
 import io.opentelemetry.kotlin.ExperimentalApi
-import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.config.envar.Exporter
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadResult.Invalid
@@ -23,8 +22,8 @@ class LogsExporterEnvVars(
         // TODO: Add support to multiple exporters being in use simultaneously once we have the LogRecordProcessor
         //  fully implemented.
         when (Exporter.fromValue(name.lowercase())) {
-            Exporter.CONSOLE -> Value(LogRecordProcessorBehavior(console = ConsoleExporterBehavior()))
-            Exporter.OTLP -> Value(LogRecordProcessorBehavior(http = OtlpHttpLogsExporterEnvVars(reader).toBehavior()))
+            Exporter.CONSOLE -> Value(LogRecordProcessorBehavior())
+            Exporter.OTLP -> Value(LogRecordProcessorBehavior())
             null -> Invalid(EnvVarReadWarning(LOGS_EXPORTER, "Unknown value '$name'; ignoring"))
             else -> Value(null) // Known exporter, but not yet supported.
         }

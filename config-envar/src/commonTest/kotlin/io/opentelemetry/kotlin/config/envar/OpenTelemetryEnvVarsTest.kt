@@ -6,7 +6,6 @@ import io.opentelemetry.kotlin.behavior.LogLimitsBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.LoggerProviderBehavior
 import io.opentelemetry.kotlin.behavior.OpenTelemetryBehavior
-import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpSpanExporterBehavior
 import io.opentelemetry.kotlin.behavior.ResourceBehavior
 import io.opentelemetry.kotlin.behavior.SamplerBehavior
@@ -102,9 +101,7 @@ internal class OpenTelemetryEnvVarsTest {
                     attributeCountLimit = 9,
                     attributeValueLengthLimit = 10,
                 ),
-                processor = LogRecordProcessorBehavior(
-                    console = ConsoleExporterBehavior(),
-                ),
+                processor = LogRecordProcessorBehavior(),
             ),
         )
         assertEquals(expected, toBehavior(env::get))
@@ -143,7 +140,7 @@ internal class OpenTelemetryEnvVarsTest {
         val behavior = toBehavior(env::get)
         val console = ConsoleExporterBehavior()
         assertEquals(SpanProcessorBehavior(console = console), behavior.tracerProvider?.processor)
-        assertEquals(LogRecordProcessorBehavior(console = console), behavior.loggerProvider?.processor)
+        assertEquals(LogRecordProcessorBehavior(), behavior.loggerProvider?.processor)
     }
 
     @Test
@@ -161,13 +158,8 @@ internal class OpenTelemetryEnvVarsTest {
             timeout = 1,
             headers = mapOf("key1" to "value1", "key2" to "value2")
         )
-        val logExporter = OtlpHttpLogsExporterBehavior(
-            endpoint = "http://localhost:4317",
-            timeout = 1,
-            headers = mapOf("key1" to "value1", "key2" to "value2")
-        )
         assertEquals(SpanProcessorBehavior(http = spanExporter), behavior.tracerProvider?.processor)
-        assertEquals(LogRecordProcessorBehavior(http = logExporter), behavior.loggerProvider?.processor)
+        assertEquals(LogRecordProcessorBehavior(), behavior.loggerProvider?.processor)
     }
 
     @Test
