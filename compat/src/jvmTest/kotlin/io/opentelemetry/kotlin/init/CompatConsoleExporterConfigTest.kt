@@ -17,8 +17,6 @@ import io.opentelemetry.kotlin.tracing.TracerProviderAdapter
 import io.opentelemetry.kotlin.tracing.export.FakeSpanProcessor
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import java.util.logging.Handler
 import java.util.logging.Level
 import java.util.logging.LogRecord
@@ -154,17 +152,5 @@ internal class CompatConsoleExporterConfigTest {
             logger.level = previousLevel
             logger.useParentHandlers = previousUseParent
         }
-    }
-
-    private fun captureStdout(block: () -> Unit): String {
-        val buffer = ByteArrayOutputStream()
-        val previous = System.out
-        System.setOut(PrintStream(buffer, true))
-        try {
-            block()
-        } finally {
-            System.setOut(previous)
-        }
-        return buffer.toString()
     }
 }
