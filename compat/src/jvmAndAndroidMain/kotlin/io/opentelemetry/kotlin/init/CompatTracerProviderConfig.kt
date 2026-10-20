@@ -103,7 +103,7 @@ internal class CompatTracerProviderConfig(
     internal fun applyResolvedProcessor(behavior: SpanProcessorBehavior?) {
         val simple = behavior?.simple
         val batch = behavior?.batch
-        val console = behavior?.console ?: batch?.exporter?.console ?: simple?.exporter?.console
+        val console = batch?.exporter?.console ?: simple?.exporter?.console
         if (exportConfigured || console == null) {
             return
         }

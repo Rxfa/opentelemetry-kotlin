@@ -35,17 +35,6 @@ internal class CompatConsoleExporterConfigTest {
     private val noLogLimits = LogLimitsBehavior()
 
     @Test
-    fun testConsoleBehaviorInstallsSpanProcessor() {
-        val messages = captureJul(LoggingSpanExporter::class.java.name) {
-            val provider = CompatTracerProviderConfig(clock, NoopSdkErrorHandler).apply {
-                applyResolvedProcessor(SpanProcessorBehavior(console = ConsoleExporterBehavior()))
-            }.build(clock, idGenerator, spanLimits = noSpanLimits)
-            provider.getTracer("test").startSpan("console-span").end()
-        }
-        assertTrue(messages.any { it.contains("console-span") })
-    }
-
-    @Test
     fun testSimpleBehaviorExportsOnEnd() {
         val messages = captureJul(LoggingSpanExporter::class.java.name) {
             provider(
@@ -83,9 +72,17 @@ internal class CompatConsoleExporterConfigTest {
         val messages = captureJul(LoggingSpanExporter::class.java.name) {
             provider(
                 SpanProcessorBehavior(
-                    console = ConsoleExporterBehavior(),
-                    simple = SimpleSpanProcessorBehavior(),
-                    batch = BatchSpanProcessorBehavior(scheduleDelay = 60_000),
+                    simple = SimpleSpanProcessorBehavior(
+                        exporter = SpanExporterBehavior(
+                            console = ConsoleExporterBehavior(),
+                        )
+                    ),
+                    batch = BatchSpanProcessorBehavior(
+                        scheduleDelay = 60_000,
+                        exporter = SpanExporterBehavior(
+                            console = ConsoleExporterBehavior(),
+                        )
+                    ),
                 ),
             ).getTracer("test").startSpan("simple-wins").end()
         }
@@ -110,17 +107,6 @@ internal class CompatConsoleExporterConfigTest {
         }.build(clock, idGenerator, spanLimits = noSpanLimits)
         provider.getTracer("test").startSpan("dsl-span").end()
         assertEquals(1, dslProcessor.endCalls.size)
-    }
-
-    @Test
-    fun testConsoleBehaviorInstallsLogProcessor() {
-        val stdout = captureStdout {
-            val provider = CompatLoggerProviderConfig(clock, NoopSdkErrorHandler).apply {
-                applyResolvedProcessor(LogRecordProcessorBehavior(console = ConsoleExporterBehavior()))
-            }.build(clock, logLimits = noLogLimits)
-            provider.getLogger("test").emit(body = "console-log")
-        }
-        assertTrue(stdout.contains("console-log"))
     }
 
     @Test
