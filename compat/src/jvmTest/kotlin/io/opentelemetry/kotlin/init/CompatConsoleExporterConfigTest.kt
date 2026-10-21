@@ -4,7 +4,9 @@ import io.opentelemetry.exporter.logging.LoggingSpanExporter
 import io.opentelemetry.kotlin.behavior.BatchSpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogLimitsBehavior
+import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
+import io.opentelemetry.kotlin.behavior.SimpleLogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.SimpleSpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.SpanExporterBehavior
 import io.opentelemetry.kotlin.behavior.SpanLimitsBehavior
@@ -112,7 +114,13 @@ internal class CompatConsoleExporterConfigTest {
         val dslProcessor = FakeLogRecordProcessor()
         val provider = CompatLoggerProviderConfig(clock, NoopSdkErrorHandler).apply {
             export { dslProcessor }
-            applyResolvedProcessor(LogRecordProcessorBehavior(console = ConsoleExporterBehavior()))
+            applyResolvedProcessor(
+                LogRecordProcessorBehavior(
+                    simple = SimpleLogRecordProcessorBehavior(
+                        exporter = LogRecordExporterBehavior(console = ConsoleExporterBehavior())
+                    )
+                )
+            )
         }.build(clock, logLimits = noLogLimits)
         provider.getLogger("test").emit(body = "dsl-log")
         assertEquals(1, dslProcessor.logs.size)

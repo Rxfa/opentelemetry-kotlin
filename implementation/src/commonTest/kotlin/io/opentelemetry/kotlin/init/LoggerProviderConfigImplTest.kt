@@ -2,7 +2,9 @@ package io.opentelemetry.kotlin.init
 
 import io.opentelemetry.kotlin.attributes.DEFAULT_ATTRIBUTE_LIMIT
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
+import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
+import io.opentelemetry.kotlin.behavior.SimpleLogRecordProcessorBehavior
 import io.opentelemetry.kotlin.clock.FakeClock
 import io.opentelemetry.kotlin.error.FakeSdkErrorHandler
 import io.opentelemetry.kotlin.error.NoopSdkErrorHandler
@@ -45,7 +47,11 @@ internal class LoggerProviderConfigImplTest {
             export { dslProcessor }
         }.generateLoggingConfig(
             base,
-            LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
+            LogRecordProcessorBehavior(
+                simple = SimpleLogRecordProcessorBehavior(
+                    exporter = LogRecordExporterBehavior(console = ConsoleExporterBehavior())
+                )
+            ),
         )
         assertSame(dslProcessor, cfg.processor)
     }
