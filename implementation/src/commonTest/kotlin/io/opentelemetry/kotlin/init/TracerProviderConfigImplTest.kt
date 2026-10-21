@@ -3,7 +3,10 @@ package io.opentelemetry.kotlin.init
 import io.opentelemetry.kotlin.assertHasSdkDefaultAttributes
 import io.opentelemetry.kotlin.attributes.AttributesModel
 import io.opentelemetry.kotlin.attributes.DEFAULT_ATTRIBUTE_LIMIT
+import io.opentelemetry.kotlin.behavior.BatchSpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
+import io.opentelemetry.kotlin.behavior.SimpleSpanProcessorBehavior
+import io.opentelemetry.kotlin.behavior.SpanExporterBehavior
 import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
 import io.opentelemetry.kotlin.clock.FakeClock
 import io.opentelemetry.kotlin.context.Context
@@ -111,11 +114,62 @@ internal class TracerProviderConfigImplTest {
 
     @Test
     fun testConsoleBehaviorInstallsProcessor() {
+        assertEquals(
+            "SimpleSpanProcessor",
+            processorClassName(SpanProcessorBehavior(console = ConsoleExporterBehavior())),
+        )
+    }
+
+    @Test
+    fun testSimpleBehaviorInstallsSimpleProcessor() {
+        assertEquals(
+            "SimpleSpanProcessor",
+            processorClassName(
+                SpanProcessorBehavior(
+                    simple = SimpleSpanProcessorBehavior(
+                        exporter = SpanExporterBehavior(console = ConsoleExporterBehavior()),
+                    ),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun testBatchBehaviorInstallsBatchProcessor() {
+        assertEquals(
+            "BatchSpanProcessorImpl",
+            processorClassName(
+                SpanProcessorBehavior(
+                    batch = BatchSpanProcessorBehavior(
+                        scheduleDelay = 100,
+                        exporter = SpanExporterBehavior(console = ConsoleExporterBehavior()),
+                    ),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun testExplicitSimpleWinsOverBatch() {
+        assertEquals(
+            "SimpleSpanProcessor",
+            processorClassName(
+                SpanProcessorBehavior(
+                    console = ConsoleExporterBehavior(),
+                    simple = SimpleSpanProcessorBehavior(),
+                    batch = BatchSpanProcessorBehavior(scheduleDelay = 100),
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun testSimpleWithoutConsoleInstallsNothing() {
         val cfg = TracerProviderConfigImpl(clock, NoopSdkErrorHandler).generateTracingConfig(
             base,
-            SpanProcessorBehavior(console = ConsoleExporterBehavior()),
+            SpanProcessorBehavior(simple = SimpleSpanProcessorBehavior()),
         )
-        assertNotNull(cfg.processor)
+        assertNull(cfg.processor)
     }
 
     @Test
@@ -249,6 +303,12 @@ internal class TracerProviderConfigImplTest {
         }.generateTracingConfig(base)
         assertEquals(value, cfg.resource.attributes[ServiceAttributes.SERVICE_NAME])
     }
+
+    private fun processorClassName(behavior: SpanProcessorBehavior): String? =
+        TracerProviderConfigImpl(clock, NoopSdkErrorHandler)
+            .generateTracingConfig(base, behavior)
+            .processor
+            ?.let { it::class.simpleName }
 
     private fun defaultSampler(): Sampler =
         TracerProviderConfigImpl(

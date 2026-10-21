@@ -2,7 +2,6 @@ package io.opentelemetry.kotlin.config.yaml
 
 import io.opentelemetry.kotlin.ExperimentalApi
 import io.opentelemetry.kotlin.behavior.OpenTelemetryBehavior
-import io.opentelemetry.kotlin.behavior.TracerProviderBehavior
 import io.opentelemetry.kotlin.config.schema.model.OpenTelemetryConfiguration
 import io.opentelemetry.kotlin.config.yaml.logging.toBehavior
 import io.opentelemetry.kotlin.config.yaml.tracing.toBehavior
@@ -15,12 +14,5 @@ fun OpenTelemetryConfiguration.toBehavior(): OpenTelemetryBehavior = OpenTelemet
     attributeLimits = attributeLimits?.toBehavior(),
     resource = resource?.toBehavior(),
     loggerProvider = loggerProvider?.toBehavior(),
-    tracerProvider = tracerProvider?.let {
-        TracerProviderBehavior(
-            spanLimits = it.limits?.toBehavior(),
-            processor = it.processors.toBehavior(),
-            sampler = it.sampler?.toBehavior(),
-            idGenerator = it.idGenerator?.toBehavior(),
-        )
-    },
+    tracerProvider = tracerProvider?.toBehavior(),
 )
