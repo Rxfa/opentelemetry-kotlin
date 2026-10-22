@@ -1,21 +1,19 @@
 package io.opentelemetry.kotlin.config.envar.logging
 
 import io.opentelemetry.kotlin.behavior.BatchLogRecordProcessorBehavior
+import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
+import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
+import io.opentelemetry.kotlin.config.envar.Exporter
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 internal class BatchLogRecordProcessorEnvVarsTest {
     @Test
-    fun readDefaultBatchSettings() {
-        assertEquals(
-            BatchLogRecordProcessorBehavior(
-                scheduleDelay = BatchLogRecordProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
-                exportTimeout = BatchLogRecordProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
-                maxQueueSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
-                maxExportBatchSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
-            ),
+    fun `stays unset if all fields are unset`() {
+        assertNull(
             BatchLogRecordProcessorEnvVars(reportingEnvVarReader({ null })).toBehavior()
         )
     }
@@ -27,13 +25,17 @@ internal class BatchLogRecordProcessorEnvVarsTest {
             BatchLogRecordProcessorEnvVars.EXPORT_TIMEOUT to "0",
             BatchLogRecordProcessorEnvVars.MAX_QUEUE_SIZE to "40",
             BatchLogRecordProcessorEnvVars.MAX_EXPORT_BATCH_SIZE to "20",
+            LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.toString(),
         )
         assertEquals(
             BatchLogRecordProcessorBehavior(
                 scheduleDelay = 100,
                 exportTimeout = 0,
                 maxQueueSize = 40,
-                maxExportBatchSize = 20
+                maxExportBatchSize = 20,
+                exporter = LogRecordExporterBehavior(
+                    console = ConsoleExporterBehavior(),
+                ),
             ),
             BatchLogRecordProcessorEnvVars(reportingEnvVarReader(env::get)).toBehavior(),
         )
@@ -47,12 +49,12 @@ internal class BatchLogRecordProcessorEnvVarsTest {
             BatchLogRecordProcessorBehavior(
                 scheduleDelay = 0,
                 exportTimeout = 0,
-                maxQueueSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
-                maxExportBatchSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
-
+                maxQueueSize = null,
+                maxExportBatchSize = null,
+                exporter = null,
             ),
             BatchLogRecordProcessorEnvVars(reader).toBehavior(),
         )
-        assertEquals(2, warnings.size)
+        assertEquals(3, warnings.size)
     }
 }
