@@ -8,16 +8,8 @@ import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 internal class BatchLogRecordProcessorEnvVarsTest {
-    @Test
-    fun `stays unset if all fields are unset`() {
-        assertNull(
-            BatchLogRecordProcessorEnvVars(reportingEnvVarReader({ null })).toBehavior()
-        )
-    }
-
     @Test
     fun readBatchSettings() {
         val env = mapOf(

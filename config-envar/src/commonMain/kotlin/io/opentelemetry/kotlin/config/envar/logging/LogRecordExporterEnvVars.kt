@@ -12,14 +12,15 @@ import io.opentelemetry.kotlin.config.envar.reader.ReportingEnvVarReader
 @ExperimentalApi
 class LogRecordExporterEnvVars(private val reader: ReportingEnvVarReader) {
     fun toBehavior(): LogRecordExporterBehavior? {
-        return reader.readStringAndTransform(LOGS_EXPORTER){ name ->
+        return reader.readStringAndTransform(LOGS_EXPORTER) { name ->
             when (Exporter.fromValue(name.lowercase())) {
                 Exporter.CONSOLE -> Value(
                     LogRecordExporterBehavior(console = ConsoleExporterBehavior())
                 )
                 Exporter.OTLP -> Value(
                     LogRecordExporterBehavior(
-                        http = OtlpHttpLogRecordExporterEnvVars(reader).toBehavior())
+                        http = OtlpHttpLogRecordExporterEnvVars(reader).toBehavior()
+                    )
                 )
                 null -> Invalid(EnvVarReadWarning(LOGS_EXPORTER, "Unknown value '$name'; ignoring"))
                 else -> Value(null) // Known exporter, but not yet supported.

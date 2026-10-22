@@ -17,6 +17,6 @@ class LogRecordProcessorEnvVars(
     fun toBehavior(): LogRecordProcessorBehavior? {
         return LogRecordProcessorBehavior(
             batch = BatchLogRecordProcessorEnvVars(reader).toBehavior(),
-        ).takeUnless { it.batch == null }
+        )
     }
 }

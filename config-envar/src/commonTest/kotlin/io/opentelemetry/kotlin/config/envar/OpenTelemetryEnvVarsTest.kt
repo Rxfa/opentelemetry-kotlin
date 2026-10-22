@@ -1,12 +1,13 @@
 package io.opentelemetry.kotlin.config.envar
 
 import io.opentelemetry.kotlin.behavior.AttributeLimitsBehavior
+import io.opentelemetry.kotlin.behavior.BatchLogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogLimitsBehavior
+import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.LoggerProviderBehavior
 import io.opentelemetry.kotlin.behavior.OpenTelemetryBehavior
-import io.opentelemetry.kotlin.behavior.OtlpHttpSpanExporterBehavior
 import io.opentelemetry.kotlin.behavior.ResourceBehavior
 import io.opentelemetry.kotlin.behavior.SamplerBehavior
 import io.opentelemetry.kotlin.behavior.SpanLimitsBehavior
@@ -14,7 +15,6 @@ import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.TracerProviderBehavior
 import io.opentelemetry.kotlin.config.envar.logging.LogLimitsEnvVars
 import io.opentelemetry.kotlin.config.envar.logging.LogRecordExporterEnvVars
-import io.opentelemetry.kotlin.config.envar.logging.OtlpHttpLogRecordExporterEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import io.opentelemetry.kotlin.config.envar.tracing.SamplerEnvVars
@@ -102,7 +102,11 @@ internal class OpenTelemetryEnvVarsTest {
                     attributeCountLimit = 9,
                     attributeValueLengthLimit = 10,
                 ),
-                processor = LogRecordProcessorBehavior(),
+                processor = LogRecordProcessorBehavior(
+                    batch = BatchLogRecordProcessorBehavior(
+                        exporter = LogRecordExporterBehavior(console = ConsoleExporterBehavior())
+                    )
+                ),
             ),
         )
         assertEquals(expected, toBehavior(env::get))
@@ -113,7 +117,11 @@ internal class OpenTelemetryEnvVarsTest {
         val expected = OpenTelemetryBehavior(
             attributeLimits = AttributeLimitsBehavior(),
             tracerProvider = TracerProviderBehavior(spanLimits = SpanLimitsBehavior()),
-            loggerProvider = LoggerProviderBehavior(logLimits = LogLimitsBehavior()),
+            loggerProvider = LoggerProviderBehavior(
+                logLimits = LogLimitsBehavior(),
+                processor = LogRecordProcessorBehavior(batch = BatchLogRecordProcessorBehavior())
+            ),
+
         )
         assertEquals(expected, toBehavior(getEnvVar = { null }))
     }
@@ -130,44 +138,6 @@ internal class OpenTelemetryEnvVarsTest {
     @Test
     fun `should leave sampler unset when OTEL_TRACES_SAMPLER is unset`() {
         assertNull(toBehavior(getEnvVar = { null }).tracerProvider?.sampler)
-    }
-
-    @Test
-    fun `should map console exporter env vars onto processor behavior`() {
-        val env = mapOf(
-            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.CONSOLE.value,
-            LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
-        )
-        val behavior = toBehavior(env::get)
-        val console = ConsoleExporterBehavior()
-        assertEquals(SpanProcessorBehavior(console = console), behavior.tracerProvider?.processor)
-        assertEquals(LogRecordProcessorBehavior(), behavior.loggerProvider?.processor)
-    }
-
-    @Test
-    fun `should map otlp http exporter env vars onto processor behavior`() {
-        val env = mapOf(
-            TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
-            LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
-            OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_ENDPOINT to "http://localhost:4317",
-            OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_TIMEOUT to "1",
-            OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_HEADERS to "key1=value1,key2=value2",
-        )
-        val behavior = toBehavior(env::get)
-        val spanExporter = OtlpHttpSpanExporterBehavior(
-            endpoint = "http://localhost:4317",
-            timeout = 1,
-            headers = mapOf("key1" to "value1", "key2" to "value2")
-        )
-        assertEquals(SpanProcessorBehavior(http = spanExporter), behavior.tracerProvider?.processor)
-        assertEquals(LogRecordProcessorBehavior(), behavior.loggerProvider?.processor)
-    }
-
-    @Test
-    fun `should leave processor unset when exporter env vars are unset`() {
-        val behavior = toBehavior(getEnvVar = { null })
-        assertEquals(null, behavior.tracerProvider?.processor)
-        assertEquals(null, behavior.loggerProvider?.processor)
     }
 
     @Test

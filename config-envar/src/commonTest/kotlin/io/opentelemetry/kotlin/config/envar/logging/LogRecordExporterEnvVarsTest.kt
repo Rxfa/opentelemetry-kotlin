@@ -14,11 +14,6 @@ internal class LogRecordExporterEnvVarsTest {
     private val unknownExporter = "not_an_exporter"
 
     @Test
-    fun `should leave unset env vars unset`() {
-        assertNull(toBehavior { null })
-    }
-
-    @Test
     fun `should map implemented exporters`() {
         var configs = mapOf(
             LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,

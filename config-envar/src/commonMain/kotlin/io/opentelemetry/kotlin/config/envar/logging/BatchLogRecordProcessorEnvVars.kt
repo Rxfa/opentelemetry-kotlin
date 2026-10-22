@@ -13,11 +13,7 @@ internal class BatchLogRecordProcessorEnvVars(private val reader: ReportingEnvVa
         maxQueueSize = reader.readNonNegativeInt(MAX_QUEUE_SIZE, acceptZero = false),
         maxExportBatchSize = reader.readNonNegativeInt(MAX_EXPORT_BATCH_SIZE, acceptZero = false),
         exporter = LogRecordExporterEnvVars(reader).toBehavior(),
-    ).takeUnless {
-        it.scheduleDelay == null && it.exportTimeout == null &&
-            it.maxQueueSize == null && it.maxExportBatchSize == null && it.exporter == null
-    }
-
+    )
 
     internal companion object {
         const val SCHEDULE_DELAY = "OTEL_BSP_SCHEDULE_DELAY"

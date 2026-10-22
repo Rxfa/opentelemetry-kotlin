@@ -5,11 +5,10 @@ import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 internal class LogRecordProcessorEnvVarsTest {
     @Test
-    fun `should map batch processor`(){
+    fun `should map batch processor`() {
         val configs = mapOf(
             BatchLogRecordProcessorEnvVars.SCHEDULE_DELAY to "1",
             BatchLogRecordProcessorEnvVars.EXPORT_TIMEOUT to "2",
@@ -27,12 +26,6 @@ internal class LogRecordProcessorEnvVarsTest {
             ),
             toBehavior(configs::get),
         )
-    }
-
-    @Test
-    fun `batch processor stays unset if no batch processor field is set`() {
-        val configs = emptyMap<String, String>()
-        assertNull(toBehavior(configs::get))
     }
 
     private fun toBehavior(getEnvVar: (String) -> String?) =
