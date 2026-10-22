@@ -13,7 +13,7 @@ import io.opentelemetry.kotlin.behavior.SpanLimitsBehavior
 import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.TracerProviderBehavior
 import io.opentelemetry.kotlin.config.envar.logging.LogLimitsEnvVars
-import io.opentelemetry.kotlin.config.envar.logging.LogsExporterEnvVars
+import io.opentelemetry.kotlin.config.envar.logging.LogRecordExporterEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import io.opentelemetry.kotlin.config.envar.tracing.SamplerEnvVars
@@ -71,7 +71,7 @@ internal class OpenTelemetryEnvVarsTest {
             ResourceEnvVars.RESOURCE_ATTRIBUTES to "region=eu",
             ResourceEnvVars.SERVICE_NAME to "checkout",
             TracesExporterEnvVars.TRACES_EXPORTER to Exporter.CONSOLE.value,
-            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
+            LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
         )
 
         val expected = OpenTelemetryBehavior(
@@ -135,7 +135,7 @@ internal class OpenTelemetryEnvVarsTest {
     fun `should map console exporter env vars onto processor behavior`() {
         val env = mapOf(
             TracesExporterEnvVars.TRACES_EXPORTER to Exporter.CONSOLE.value,
-            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
+            LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.CONSOLE.value,
         )
         val behavior = toBehavior(env::get)
         val console = ConsoleExporterBehavior()
@@ -147,7 +147,7 @@ internal class OpenTelemetryEnvVarsTest {
     fun `should map otlp http exporter env vars onto processor behavior`() {
         val env = mapOf(
             TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
-            LogsExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
+            LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
             "OTEL_EXPORTER_OTLP_ENDPOINT" to "http://localhost:4317",
             "OTEL_EXPORTER_OTLP_TIMEOUT" to "1",
             "OTEL_EXPORTER_OTLP_HEADERS" to "key1=value1,key2=value2",
@@ -176,7 +176,7 @@ internal class OpenTelemetryEnvVarsTest {
             ResourceEnvVars.RESOURCE_ATTRIBUTES to "invalid",
             SamplerEnvVars.SAMPLER to "not_a_sampler",
             TracesExporterEnvVars.TRACES_EXPORTER to "not_an_exporter",
-            LogsExporterEnvVars.LOGS_EXPORTER to "not_an_exporter",
+            LogRecordExporterEnvVars.LOGS_EXPORTER to "not_an_exporter",
         )
         val warnings = mutableListOf<EnvVarReadWarning>()
         toBehavior(env::get, warnings::add)
@@ -187,7 +187,7 @@ internal class OpenTelemetryEnvVarsTest {
                 ResourceEnvVars.RESOURCE_ATTRIBUTES,
                 SamplerEnvVars.SAMPLER,
                 TracesExporterEnvVars.TRACES_EXPORTER,
-                LogsExporterEnvVars.LOGS_EXPORTER,
+                LogRecordExporterEnvVars.LOGS_EXPORTER,
             ),
             warnings.map { it.name }.toSet(),
         )

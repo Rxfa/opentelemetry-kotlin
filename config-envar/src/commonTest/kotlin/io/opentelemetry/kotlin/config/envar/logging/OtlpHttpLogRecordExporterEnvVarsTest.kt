@@ -6,9 +6,9 @@ import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class OtlpHttpLogsExporterEnvVarsTest {
+internal class OtlpHttpLogRecordExporterEnvVarsTest {
     @Test
-    fun `maps OTLP HTTP span exporter settings`() {
+    fun `maps OTLP HTTP log record exporter settings`() {
         val configs = mapOf(
             OpenTelemetryEnvVars.OTLP_ENDPOINT to "http://localhost:4317",
             OpenTelemetryEnvVars.OTLP_TIMEOUT to "10000",
@@ -41,9 +41,9 @@ internal class OtlpHttpLogsExporterEnvVarsTest {
         )
         configs.putAll(
             mapOf(
-                LogsExporterEnvVars.OTLP_LOGS_ENDPOINT to "http://localhost:4317/traces",
-                LogsExporterEnvVars.OTLP_LOGS_TIMEOUT to "2",
-                LogsExporterEnvVars.OTLP_LOGS_HEADERS to "key3=value3,key4=value4",
+                OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_ENDPOINT to "http://localhost:4317/traces",
+                OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_TIMEOUT to "2",
+                OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_HEADERS to "key3=value3,key4=value4",
             )
         )
         assertEquals(
@@ -68,5 +68,5 @@ internal class OtlpHttpLogsExporterEnvVarsTest {
     }
 
     private fun toBehavior(getEnvVar: (String) -> String?) =
-        OtlpHttpLogsExporterEnvVars(reportingEnvVarReader(getEnvVar)).toBehavior()
+        OtlpHttpLogRecordExporterEnvVars(reportingEnvVarReader(getEnvVar)).toBehavior()
 }

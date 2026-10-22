@@ -11,14 +11,14 @@ import io.opentelemetry.kotlin.config.envar.reader.ReportingEnvVarReader
  * behavior configuration.
  */
 @ExperimentalApi
-class OtlpHttpLogsExporterEnvVars(private val reader: ReportingEnvVarReader) {
+class OtlpHttpLogRecordExporterEnvVars(private val reader: ReportingEnvVarReader) {
     fun toBehavior(): OtlpHttpLogsExporterBehavior {
-        val endpoint = reader.readString(LogsExporterEnvVars.OTLP_LOGS_ENDPOINT)
+        val endpoint = reader.readString(OTLP_LOGS_ENDPOINT)
             ?: reader.readString(OpenTelemetryEnvVars.OTLP_ENDPOINT)
-        val timeout = reader.readNonNegativeLong(LogsExporterEnvVars.OTLP_LOGS_TIMEOUT)
+        val timeout = reader.readNonNegativeLong(OTLP_LOGS_TIMEOUT)
             ?: reader.readNonNegativeLong(OpenTelemetryEnvVars.OTLP_TIMEOUT)
         val headers = OtlpExporter.buildHeaderMap(
-            reader.readString(LogsExporterEnvVars.OTLP_LOGS_HEADERS)
+            reader.readString(OTLP_LOGS_HEADERS)
                 ?: reader.readString(OpenTelemetryEnvVars.OTLP_HEADERS)
         )
         return OtlpHttpLogsExporterBehavior(
@@ -26,5 +26,11 @@ class OtlpHttpLogsExporterEnvVars(private val reader: ReportingEnvVarReader) {
             timeout = timeout,
             headers = headers,
         )
+    }
+
+    internal companion object {
+        const val OTLP_LOGS_ENDPOINT = "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"
+        const val OTLP_LOGS_TIMEOUT = "OTEL_EXPORTER_OTLP_LOGS_TIMEOUT"
+        const val OTLP_LOGS_HEADERS = "OTEL_EXPORTER_OTLP_LOGS_HEADERS"
     }
 }
