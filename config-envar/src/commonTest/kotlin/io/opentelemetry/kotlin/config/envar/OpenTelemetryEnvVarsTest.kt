@@ -14,6 +14,7 @@ import io.opentelemetry.kotlin.behavior.SpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.TracerProviderBehavior
 import io.opentelemetry.kotlin.config.envar.logging.LogLimitsEnvVars
 import io.opentelemetry.kotlin.config.envar.logging.LogRecordExporterEnvVars
+import io.opentelemetry.kotlin.config.envar.logging.OtlpHttpLogRecordExporterEnvVars
 import io.opentelemetry.kotlin.config.envar.reader.EnvVarReadWarning
 import io.opentelemetry.kotlin.config.envar.reader.reportingEnvVarReader
 import io.opentelemetry.kotlin.config.envar.tracing.SamplerEnvVars
@@ -148,9 +149,9 @@ internal class OpenTelemetryEnvVarsTest {
         val env = mapOf(
             TracesExporterEnvVars.TRACES_EXPORTER to Exporter.OTLP.value,
             LogRecordExporterEnvVars.LOGS_EXPORTER to Exporter.OTLP.value,
-            "OTEL_EXPORTER_OTLP_ENDPOINT" to "http://localhost:4317",
-            "OTEL_EXPORTER_OTLP_TIMEOUT" to "1",
-            "OTEL_EXPORTER_OTLP_HEADERS" to "key1=value1,key2=value2",
+            OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_ENDPOINT to "http://localhost:4317",
+            OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_TIMEOUT to "1",
+            OtlpHttpLogRecordExporterEnvVars.OTLP_LOGS_HEADERS to "key1=value1,key2=value2",
         )
         val behavior = toBehavior(env::get)
         val spanExporter = OtlpHttpSpanExporterBehavior(
