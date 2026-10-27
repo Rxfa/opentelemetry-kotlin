@@ -4,7 +4,7 @@ import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class OtlpHttpLogsExporterConfigDslImplTest {
+internal class OtlpHttpLogsExporterConfigDslImplTest {
     @Test
     fun startsUnset(){
         val dsl = OtlpHttpLogsExporterConfigDslImpl()
@@ -16,15 +16,17 @@ class OtlpHttpLogsExporterConfigDslImplTest {
 
     @Test
     fun mapsAllFields(){
-        val endpoint = "http://www.example.com:8080/logs"
-        val timeout = 1_000L
-        val headers = mapOf("key" to "value")
-        val dsl = OtlpHttpLogsExporterConfigDslImpl()
-        dsl.endpoint(endpoint)
-        dsl.timeout(timeout)
-        dsl.headers(headers)
+        val dsl = OtlpHttpLogsExporterConfigDslImpl().apply {
+            endpoint = "http://www.example.com:8080/logs"
+            timeout = 1_000L
+            headers = mapOf("key" to "value")
+        }
         assertEquals(
-            OtlpHttpLogsExporterBehavior(endpoint = endpoint, timeout = timeout, headers = headers),
+            OtlpHttpLogsExporterBehavior(
+                endpoint = "http://www.example.com:8080/logs",
+                timeout = 1_000L,
+                headers = mapOf("key" to "value")
+            ),
             dsl.toBehavior()
         )
     }
