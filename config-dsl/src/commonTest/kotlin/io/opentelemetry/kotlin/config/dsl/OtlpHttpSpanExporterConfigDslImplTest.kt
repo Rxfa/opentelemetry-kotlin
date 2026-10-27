@@ -16,15 +16,17 @@ internal class OtlpHttpSpanExporterConfigDslImplTest {
 
     @Test
     fun mapsAllFields(){
-        val endpoint = "http://www.example.com:8080/logs"
-        val timeout = 1_000L
-        val headers = mapOf("key" to "value")
-        val dsl = OtlpHttpSpanExporterConfigDslImpl()
-        dsl.endpoint(endpoint)
-        dsl.timeout(timeout)
-        dsl.headers(headers)
+        val dsl = OtlpHttpSpanExporterConfigDslImpl().apply {
+            endpoint = "http://www.example.com:8080/logs"
+            timeout = 1_000L
+            headers = mapOf("key" to "value")
+        }
         assertEquals(
-            OtlpHttpSpanExporterBehavior(endpoint = endpoint, timeout = timeout, headers = headers),
+            OtlpHttpSpanExporterBehavior(
+                endpoint = "http://www.example.com:8080/logs",
+                timeout = 1_000L,
+                headers = mapOf("key" to "value")
+            ),
             dsl.toBehavior()
         )
     }
