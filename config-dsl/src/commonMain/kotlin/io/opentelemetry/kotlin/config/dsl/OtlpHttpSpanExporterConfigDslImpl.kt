@@ -7,7 +7,7 @@ import io.opentelemetry.kotlin.behavior.OtlpHttpSpanExporterBehavior
  * Captures the OTLP HTTP span exporter configured programmatically and maps it onto a behavior.
  */
 @ExperimentalApi
-class OtlpHttpSpanExporterConfigDslImpl: BehaviorSupplier<OtlpHttpSpanExporterBehavior> {
+class OtlpHttpSpanExporterConfigDslImpl : BehaviorSupplier<OtlpHttpSpanExporterBehavior> {
     var endpoint: String? = null
     var timeout: Long? = null
     var headers: Map<String, String?>? = null

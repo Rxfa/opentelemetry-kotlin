@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 internal class OtlpHttpLogsExporterConfigDslImplTest {
     @Test
-    fun startsUnset(){
+    fun startsUnset() {
         val dsl = OtlpHttpLogsExporterConfigDslImpl()
         assertEquals(
             OtlpHttpLogsExporterBehavior(),
@@ -15,7 +15,7 @@ internal class OtlpHttpLogsExporterConfigDslImplTest {
     }
 
     @Test
-    fun mapsAllFields(){
+    fun mapsAllFields() {
         val dsl = OtlpHttpLogsExporterConfigDslImpl().apply {
             endpoint = "http://www.example.com:8080/logs"
             timeout = 1_000L
