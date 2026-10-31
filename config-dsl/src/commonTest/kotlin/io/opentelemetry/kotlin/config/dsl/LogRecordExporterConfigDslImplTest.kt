@@ -6,10 +6,10 @@ import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class LogRecordExporterDslImplTest {
+internal class LogRecordExporterConfigDslImplTest {
     @Test
     fun startsUnset() {
-        val dsl = LogRecordExporterDslImpl()
+        val dsl = LogRecordExporterConfigDslImpl()
         assertEquals(
             LogRecordExporterBehavior(),
             dsl.toBehavior()
@@ -18,7 +18,7 @@ internal class LogRecordExporterDslImplTest {
 
     @Test
     fun mapsAllFields() {
-        val dsl = LogRecordExporterDslImpl().apply {
+        val dsl = LogRecordExporterConfigDslImpl().apply {
             http {
                 endpoint = "http://www.example.com"
             }
