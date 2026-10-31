@@ -11,8 +11,8 @@ import io.opentelemetry.kotlin.behavior.SimpleLogRecordProcessorBehavior
 class SimpleLogRecordProcessorConfigDslImpl : BehaviorSupplier<SimpleLogRecordProcessorBehavior> {
     private var exporter: LogRecordExporterBehavior? = null
 
-    fun exporter(action: LogRecordExporterDslImpl.() -> Unit) {
-        val impl = LogRecordExporterDslImpl()
+    fun exporter(action: LogRecordExporterConfigDslImpl.() -> Unit) {
+        val impl = LogRecordExporterConfigDslImpl()
         impl.action()
         exporter = impl.toBehavior()
     }
